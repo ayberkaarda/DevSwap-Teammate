@@ -28,7 +28,7 @@ DevSwap matches developers who want to **teach** a skill with developers who wan
 
 ### Matching & Skills
 - **Category-aware pgvector matching** (`app/services/match_finder.rb`, `app/services/user_embedding_builder.rb`): each user has separate 512-dimension "teaching" and "learning" embeddings (`UserSkillVector`). The vector splits into two disjoint sub-ranges — 128 dimensions of **category hashing** (so different skills in the same category, e.g. "language", share a baseline similarity) and the remaining 384 dimensions of **skill-identity hashing** (spelling variants of the same skill, resolved through `SkillAlias`, collapse into the same bucket). `MatchFinder` runs an HNSW cosine nearest-neighbor search (via `neighbor`) over a wide candidate pool (200), then applies relational filters (self, blocks), ranks **reciprocal** (two-way teach/learn) matches above one-way matches, applies an optional rating boost, and computes a separate user-facing **match-quality percentage** that blends raw cosine similarity with actual normalized skill-name overlap so a genuine skill intersection is never shown as a misleading 0%.
-- **Canonical skill pool** (`db/seeds/canonical_skills.rb`): ~300 curated skill names across 9 categories — Languages, Frontend Frameworks & Libraries, Backend Frameworks (incl. Web3/blockchain tooling), Databases & ORMs, Cloud & DevOps, Machine Learning & Data Science, Game Development, OS & System Administration, and Testing & Tools.
+- **Canonical skill pool** (`db/seeds/canonical_skills.rb`): 303 curated skill names across 9 categories — Languages, Frontend Frameworks & Libraries, Backend Frameworks (incl. Web3/blockchain tooling), Databases & ORMs, Cloud & DevOps, Machine Learning & Data Science, Game Development, OS & System Administration, and Testing & Tools.
 - **GitHub repo scanning**: a background job (`github_scan_job`) scans a user's repositories via the GitHub API and auto-populates their "teaching" skills with a confidence weight; each scanned repo has a per-repo visibility toggle for the public profile.
 - Skill entries carry a proficiency level, an optional note, and an optional evidence link, editable per-skill in an accordion UI.
 
@@ -164,7 +164,7 @@ bin/dev_worker
 
 ## Testing
 
-The project has a substantial test suite under `test/` covering models, controllers, jobs, services, channels (including `terminal_chat_channel`), and system flows (dashboard grid/DM dock behavior, chat UI, post feed, profile grid, theme dropdown, and more).
+The project has a substantial test suite under `test/` covering models, controllers, jobs, services, channels (including `terminal_chat_channel`), and system flows (dashboard grid/DM dock behavior, chat UI, post feed, profile grid, theme dropdown, and more). As of this writing: **612 unit/model/controller/job/service/channel tests** (2,085 assertions) and **21 Capybara/Selenium system tests** (174 assertions), all passing.
 
 ```bash
 bin/rails test          # unit/integration tests

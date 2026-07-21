@@ -1,4 +1,4 @@
-# DevSwap
+# DevSwap-Teammate
 
 **Peer-to-peer developer skill exchange, wrapped in a terminal/hacker aesthetic.**
 

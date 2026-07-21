@@ -1,0 +1,95 @@
+<% content_for :title, "Ayarlar" %>
+<div class="min-h-screen bg-surface-0 text-text-primary px-4 md:px-8 pb-8 font-sans">
+  <div class="max-w-3xl mx-auto pt-8">
+    <!-- Baslik -->
+    <div class="mb-6 flex items-center justify-between border-b border-border-subtle pb-4">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-text-primary dark:text-accent-fg font-mono">settings.sh</h1>
+        <p class="text-text-muted mt-1 text-sm font-mono">&gt; kişisel tercihlerin</p>
+      </div>
+      <%= link_to "← Dashboard", root_path,
+            class: "text-sm bg-surface-1 hover:bg-surface-2 border border-border-subtle text-text-primary px-4 py-2 rounded transition" %>
+    </div>
+
+    <!-- Hizli gezinme -->
+    <nav class="flex flex-wrap gap-2 mb-8 text-xs font-mono">
+      <a href="#kaydedilenler" class="px-3 py-1.5 rounded border border-border-subtle text-text-muted hover:border-accent hover:text-accent transition-colors">Kaydedilenler (<%= @saved_posts.size %>)</a>
+      <a href="#ilgilenmediklerim" class="px-3 py-1.5 rounded border border-border-subtle text-text-muted hover:border-accent hover:text-accent transition-colors">İlgilenmediklerim (<%= @not_interested.size %>)</a>
+      <a href="#engellenenler" class="px-3 py-1.5 rounded border border-border-subtle text-text-muted hover:border-accent hover:text-accent transition-colors">Engellenenler (<%= @blocked.size %>)</a>
+    </nav>
+
+    <!-- KAYDEDILENLER -->
+    <section id="kaydedilenler" class="mb-10 scroll-mt-20">
+      <h2 class="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-amber-500"></span> Kaydedilenler
+      </h2>
+      <% if @saved_posts.any? %>
+        <div class="flex flex-col gap-4">
+          <% @saved_posts.each do |post| %>
+            <%= render "posts/post", post: post %>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-text-muted font-mono text-sm py-6 text-center border border-dashed border-border-subtle rounded-lg">Henüz kaydettiğin bir post yok.</p>
+      <% end %>
+    </section>
+
+    <!-- ILGILENMEDIKLERIM -->
+    <section id="ilgilenmediklerim" class="mb-10 scroll-mt-20">
+      <h2 class="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-indigo-500"></span> İlgilenmediklerim
+      </h2>
+      <% if @not_interested.any? %>
+        <ul class="flex flex-col gap-2">
+          <% @not_interested.each do |pref| %>
+            <% u = pref.target_user %>
+            <li class="flex items-center gap-3 p-3 bg-surface-1 border border-border-subtle rounded-lg">
+              <%= link_to public_profile_path(u.id), class: "flex items-center gap-3 min-w-0 flex-1" do %>
+                <% if u.avatar_url.present? %>
+                  <%= image_tag u.avatar_url, alt: u.name, class: "w-9 h-9 rounded-full ring-1 ring-border-subtle object-cover" %>
+                <% else %>
+                  <span class="w-9 h-9 rounded-full bg-surface-2 border border-border-subtle inline-flex items-center justify-center text-xs font-mono text-accent"><%= u.name.to_s.first&.upcase %></span>
+                <% end %>
+                <span class="font-semibold text-sm text-text-primary truncate"><%= u.name %></span>
+              <% end %>
+              <%= button_to "Geri Al", feed_preference_path(u.id), method: :delete,
+                    form: { class: "shrink-0" },
+                    class: "text-xs font-mono bg-surface-2 border border-border-subtle text-text-secondary px-3 py-1.5 rounded hover:border-accent hover:text-accent transition-colors cursor-pointer" %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-text-muted font-mono text-sm py-6 text-center border border-dashed border-border-subtle rounded-lg">İlgilenmediğin olarak işaretlediğin kimse yok.</p>
+      <% end %>
+    </section>
+
+    <!-- ENGELLENENLER -->
+    <section id="engellenenler" class="mb-10 scroll-mt-20">
+      <h2 class="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-status-err"></span> Engellenenler
+      </h2>
+      <% if @blocked.any? %>
+        <ul class="flex flex-col gap-2">
+          <% @blocked.each do |block| %>
+            <% u = block.blocked %>
+            <li class="flex items-center gap-3 p-3 bg-surface-1 border border-border-subtle rounded-lg">
+              <div class="flex items-center gap-3 min-w-0 flex-1">
+                <% if u.avatar_url.present? %>
+                  <%= image_tag u.avatar_url, alt: u.name, class: "w-9 h-9 rounded-full ring-1 ring-border-subtle object-cover" %>
+                <% else %>
+                  <span class="w-9 h-9 rounded-full bg-surface-2 border border-border-subtle inline-flex items-center justify-center text-xs font-mono text-accent"><%= u.name.to_s.first&.upcase %></span>
+                <% end %>
+                <span class="font-semibold text-sm text-text-primary truncate"><%= u.name %></span>
+              </div>
+              <%= button_to "Engeli Kaldır", block_path(block.id), method: :delete,
+                    form: { class: "shrink-0" },
+                    class: "text-xs font-mono bg-status-err/10 border border-status-err/40 text-status-err px-3 py-1.5 rounded hover:bg-status-err/20 transition-colors cursor-pointer" %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-text-muted font-mono text-sm py-6 text-center border border-dashed border-border-subtle rounded-lg">Engellediğin kimse yok.</p>
+      <% end %>
+    </section>
+  </div>
+</div>

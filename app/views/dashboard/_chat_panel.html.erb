@@ -1,0 +1,78 @@
+<% if chat_room.rules.present? %>
+  <style>
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to   { transform: translateY(0);     opacity: 1; }
+    }
+  </style>
+  <div class="rules-banner overflow-hidden" style="animation: slideDown 0.4s ease-out;">
+    <p class="text-[10px] font-mono text-terminal-text-muted px-4 py-2 border-b border-terminal-border">
+      <span class="text-accent">&gt; ODA_KURALLARI:</span> <%= chat_room.rules %>
+    </p>
+  </div>
+<% end %>
+
+<%# İlişki sonlandırma / değerlendirme UI'ı YALNIZCA eşleşme kaynaklı (origin:"match")
+    DM odalarında gösterilir. "direct" DM'ler (profilden "Sohbet Aç") sıradan bir
+    sohbet gibi görünür — "eşleşmedesiniz"/"eşleşmeyi sonlandır" ibaresi taşımaz. %>
+<% if chat_room.match_origin? %>
+  <%# Bug fix (Faz 32c): "İlişkiyi Sonlandır" butonu `chat_panel` Turbo Frame'inin
+      İÇİNDE. request_end sonrası redirect'in flash'i layout'taki #toast-region'da
+      (frame'in DIŞINDA) render edildiği için frame swap'inde atılıyordu — kullanıcı
+      hiçbir geri bildirim görmüyordu ("hiçbir şey olmuyor"). Flash'ı frame İÇİNDE de
+      göstererek geri bildirimi garanti ediyoruz. %>
+  <% if flash[:notice].present? || flash[:alert].present? %>
+    <div class="px-4 py-2 border-b border-terminal-border text-[11px] font-mono <%= flash[:alert].present? ? "text-red-400" : "text-accent" %>">
+      <%= flash[:alert].presence || flash[:notice] %>
+    </div>
+  <% end %>
+  <div class="px-4 py-2 border-b border-terminal-border flex items-center justify-between gap-2 text-xs font-mono">
+    <% if chat_room.ended? %>
+      <span class="text-terminal-text-muted">İlişki sonlandı.</span>
+      <% if !chat_room.rated_by?(current_user) %>
+        <%= form_with url: ratings_path, method: :post, class: "flex items-center gap-2" do %>
+          <%= hidden_field_tag :room_slug, chat_room.slug %>
+          <select name="score" class="bg-terminal-bg border border-terminal-border text-terminal-text text-xs px-1 py-0.5 rounded">
+            <option value="5">★★★★★</option>
+            <option value="4">★★★★</option>
+            <option value="3">★★★</option>
+            <option value="2">★★</option>
+            <option value="1">★</option>
+          </select>
+          <input type="text" name="note" placeholder="Not (opsiyonel)" autocomplete="off" class="bg-terminal-bg border border-terminal-border text-terminal-text text-xs px-2 py-0.5 rounded" />
+          <button type="submit" class="bg-accent/10 text-accent border border-accent/30 px-2 py-0.5 rounded hover:bg-accent/20 transition-colors">Değerlendir</button>
+        <% end %>
+      <% else %>
+        <span class="text-accent">Değerlendirmen kaydedildi.</span>
+      <% end %>
+    <% else %>
+      <%= button_to "İlişkiyi Sonlandır", request_end_room_path(chat_room.slug), method: :post, class: "text-[10px] text-terminal-text-muted hover:text-red-400 border border-terminal-border px-2 py-1 rounded transition-colors" %>
+    <% end %>
+  </div>
+<% end %>
+
+<%
+  # panel_flexible: Gridstack dashboard widget (chatbox) baglaminda, mesaj alani
+  # widget'in gercek yuksekligini (h-full) doldurup kucultuldugunde de kucusun diye
+  # flex-1 min-h-0 ile esnek olmali. Diger baglamlarda (tam sayfa /rooms/:slug,
+  # minimal DM popup) sabit/viewport-orantili yukseklik korunur.
+  panel_flexible = local_assigns[:panel_flexible]
+  messages_class = panel_flexible ? "p-4 flex flex-col flex-1 min-h-0 overflow-y-auto no-visible-scrollbar" : "p-4 flex flex-col h-[400px] overflow-y-auto no-visible-scrollbar"
+%>
+<div id="chat-messages" data-room-slug="<%= chat_room.slug %>" aria-live="polite" aria-relevant="additions" class="<%= messages_class %>">
+  <div id="typing-indicator" aria-live="polite" class="px-4 pb-2 text-[10px] font-mono text-accent/70 tracking-widest h-6 transition-opacity opacity-0">
+    [SYS: Bekleniyor...]
+  </div>
+  <% messages.each do |msg| %>
+    <%= render "dashboard/chat_message", msg: msg %>
+  <% end %>
+</div>
+
+<div class="border-t border-terminal-border bg-terminal-bg p-4">
+  <%= form_with model: new_message, url: messages_path, id: "terminal-form", class: "flex items-center gap-2" do |f| %>
+    <%= hidden_field_tag :room, chat_room.slug %>
+    <span class="text-prompt-color font-bold font-mono text-sm">❯</span>
+    <%= f.text_field :body, autocomplete: "off", placeholder: "Ağda mesaj yayınla...", class: "w-full bg-transparent border-none text-terminal-text focus:outline-none focus:ring-0 font-mono text-sm placeholder:text-terminal-text-muted" %>
+    <%= f.submit "Gönder", class: "hidden" %>
+  <% end %>
+</div>

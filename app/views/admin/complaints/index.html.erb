@@ -1,0 +1,131 @@
+<div class="max-w-5xl mx-auto px-4 py-4 space-y-8">
+  <section>
+    <h2 class="text-sm font-mono text-accent tracking-widest mb-1">&gt; ŞİKAYETLER</h2>
+    <p class="text-[11px] font-mono text-text-muted mb-4">Kullanıcı şikayetlerini incele ve moderasyon işlemleri uygula.</p>
+
+    <div class="tt-surface rounded-xl p-4 border border-border-subtle mb-6">
+      <%= form_with url: admin_complaints_path, method: :get, class: "flex flex-wrap items-center gap-2" do %>
+        <select name="status" onchange="this.form.requestSubmit()"
+                class="bg-surface-1 border border-border-subtle text-xs font-mono px-2 py-1.5 rounded text-text-primary focus:border-accent focus:outline-none">
+          <option value="" <%= "selected" if @filter.blank? %>>Tümü</option>
+          <% Complaint::STATUSES.each do |status| %>
+            <option value="<%= status %>" <%= "selected" if @filter == status %>><%= status %></option>
+          <% end %>
+        </select>
+        <button type="submit" class="bg-accent/10 text-accent border border-accent/30 px-4 py-1.5 rounded text-xs font-mono cursor-pointer hover:bg-accent/20 transition-all">Ara</button>
+      <% end %>
+    </div>
+
+    <div class="tt-surface rounded-xl p-4 border border-border-subtle">
+      <p class="text-[10px] font-mono text-text-muted tracking-widest mb-3"><%= @total %> ŞİKAYET · SAYFA <%= @page %></p>
+
+      <% if @total == 0 %>
+        <p class="text-xs font-mono text-text-muted text-center py-4">Şikayet yok.</p>
+      <% else %>
+        <div class="border border-border-subtle rounded overflow-x-auto">
+          <table class="w-full text-xs font-mono">
+            <thead class="bg-surface-2 text-text-muted">
+              <tr>
+                <th class="text-left px-3 py-2">Bildiren</th>
+                <th class="text-left px-3 py-2">Hedef</th>
+                <th class="text-left px-3 py-2">Açıklama</th>
+                <th class="text-left px-3 py-2">Kanıt</th>
+                <th class="text-left px-3 py-2">Durum</th>
+                <th class="text-left px-3 py-2">Tarih</th>
+                <th class="text-left px-3 py-2">İşlemler</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border-subtle">
+              <% @complaints.each do |complaint| %>
+                <tr class="even:bg-surface-1/50 align-top">
+                  <td class="px-3 py-2">
+                    <%= link_to complaint.reported_by.name.presence || "(isimsiz)", public_profile_path(complaint.reported_by.id), class: "text-accent hover:underline" %>
+                  </td>
+                  <td class="px-3 py-2">
+                    <%= link_to complaint.target_user.name.presence || "(isimsiz)", public_profile_path(complaint.target_user.id), class: "text-accent hover:underline" %>
+                  </td>
+                  <td class="px-3 py-2 text-text-secondary max-w-xs">
+                    <% if complaint.description.to_s.length > 80 %>
+                      <details>
+                        <summary class="cursor-pointer" title="<%= complaint.description %>"><%= truncate(complaint.description, length: 80) %></summary>
+                        <div class="mt-1 text-text-muted whitespace-pre-wrap"><%= complaint.description %></div>
+                      </details>
+                    <% else %>
+                      <%= complaint.description %>
+                    <% end %>
+                  </td>
+                  <td class="px-3 py-2">
+                    <% if complaint.evidence_photo.attached? && complaint.evidence_photo.blob.persisted? %>
+                      <%= image_tag complaint.evidence_photo, class: "w-16 h-16 object-cover rounded" %>
+                    <% else %>
+                      <span class="text-text-muted">-</span>
+                    <% end %>
+                  </td>
+                  <td class="px-3 py-2">
+                    <% badge_class = case complaint.status
+                       when "pending" then "text-status-warn border-status-warn"
+                       when "reviewed" then "text-accent border-accent"
+                       when "actioned" then "text-status-ok border-status-ok"
+                       when "dismissed" then "text-text-muted border-border-subtle"
+                       else "text-text-muted border-border-subtle"
+                       end %>
+                    <span class="text-[10px] <%= badge_class %> border rounded px-1"><%= complaint.status %></span>
+                  </td>
+                  <td class="px-3 py-2 text-text-muted"><%= complaint.created_at.strftime("%d.%m.%Y %H:%M") %></td>
+                  <td class="px-3 py-2">
+                    <div class="flex flex-wrap gap-1">
+                      <%= button_to "Banla", bans_path(user_id: complaint.target_user_id, reason: "Şikayet ##{complaint.id} üzerine banlandı"),
+                            method: :post,
+                            form: { class: "inline", data: { turbo_confirm: "#{complaint.target_user.name} banlansın mı?" } },
+                            class: "text-[10px] px-2 py-1 rounded border border-status-err text-status-err hover:bg-status-err/10" %>
+
+                      <% if complaint.status == "pending" %>
+                        <%= button_to "İncelendi", mark_reviewed_admin_complaint_path(complaint, status: @filter),
+                              method: :patch,
+                              form: { class: "inline" },
+                              class: "text-[10px] px-2 py-1 rounded border border-accent text-accent hover:bg-accent/10" %>
+                      <% end %>
+
+                      <% if complaint.status.in?(%w[pending reviewed]) %>
+                        <%= button_to "İşlem Yapıldı", mark_actioned_admin_complaint_path(complaint, status: @filter),
+                              method: :patch,
+                              form: { class: "inline" },
+                              class: "text-[10px] px-2 py-1 rounded border border-status-ok text-status-ok hover:bg-status-ok/10" %>
+
+                        <%= button_to "Reddet", dismiss_admin_complaint_path(complaint, status: @filter),
+                              method: :patch,
+                              form: { class: "inline" },
+                              class: "text-[10px] px-2 py-1 rounded border border-border-subtle text-text-muted hover:bg-surface-2" %>
+                      <% end %>
+
+                      <%= button_to "Sil", admin_complaint_path(complaint),
+                            method: :delete,
+                            form: { class: "inline", data: { turbo_confirm: "Bu şikayeti kalıcı olarak silmek istediğine emin misin?" } },
+                            class: "text-[10px] px-2 py-1 rounded border border-status-err text-status-err hover:bg-status-err/10" %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+
+      <div class="flex items-center justify-between mt-4 text-xs font-mono">
+        <% if @page > 1 %>
+          <%= link_to "&lt; Geri".html_safe, admin_complaints_path(status: @filter, page: @page - 1),
+                class: "text-accent hover:underline" %>
+        <% else %>
+          <span class="text-text-muted opacity-40">&lt; Geri</span>
+        <% end %>
+
+        <% if @next_page %>
+          <%= link_to "İleri &gt;".html_safe, admin_complaints_path(status: @filter, page: @next_page),
+                class: "text-accent hover:underline" %>
+        <% else %>
+          <span class="text-text-muted opacity-40">İleri &gt;</span>
+        <% end %>
+      </div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,12 @@
+<div class="min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-sm bg-surface-1 border border-border-subtle dark:border-accent/30 rounded-lg shadow-xl dark:shadow-none p-8 text-center font-mono">
+    <div class="text-accent dark:text-prompt-color text-xs tracking-widest uppercase mb-2">DevSwap // Terminal Erişimi</div>
+    <h1 class="text-xl font-bold text-text-primary mb-6">Devam etmek için kimliğini doğrula</h1>
+
+    <%= button_to "/auth/github", data: { turbo: false }, method: :post, class: "w-full inline-flex items-center justify-center gap-2 bg-text-primary dark:bg-accent hover:opacity-90 text-accent-fg dark:text-surface-0 font-bold py-2.5 px-4 rounded transition" do %>
+      GitHub ile Giriş Yap
+    <% end %>
+
+    <p class="text-[11px] text-text-muted mt-4">Node kimliğin GitHub hesabınla eşleştirilecek.</p>
+  </div>
+</div>

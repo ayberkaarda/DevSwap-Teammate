@@ -1,0 +1,16 @@
+<%# Infinite scroll tetikleyicisi. data-next-url mevcutsa gorunur alana %>
+<%# girdiginde bir sonraki sayfa turbo_stream olarak cekilir. %>
+<%# Aktif arama/siralama/aralik parametrelerini bir sonraki sayfaya tasi. %>
+<% next_url = next_page ? posts_path(request.query_parameters.merge(page: next_page)) : nil %>
+<%= tag.div id: "posts-sentinel",
+    data: {
+      infinite_scroll_target: "sentinel",
+      next_url: next_url
+    } do %>
+  <% if next_page %>
+    <div class="flex justify-center py-6">
+      <span class="inline-block w-5 h-5 border-2 border-accent/30 border-t-accent rounded-full animate-spin" aria-hidden="true"></span>
+      <span class="sr-only">Daha fazla post yükleniyor…</span>
+    </div>
+  <% end %>
+<% end %>

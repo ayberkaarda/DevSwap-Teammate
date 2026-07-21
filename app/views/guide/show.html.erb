@@ -1,0 +1,578 @@
+<div class="min-h-screen bg-surface-0 text-text-primary px-8 pb-16 font-sans">
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Üst Başlık -->
+    <div class="mb-8 flex justify-between items-end border-b border-border-subtle pb-4">
+      <div>
+        <div class="text-accent dark:text-prompt-color text-xs tracking-widest uppercase mb-2 font-mono">DevSwap // Kılavuz</div>
+        <h1 class="text-3xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Yapabileceklerim</h1>
+        <p class="text-text-muted mt-1 text-sm font-mono">Sıfırdan başlayıp sistemi uçtan uca öğrenmen için adım adım rehber</p>
+      </div>
+      <a href="<%= root_path %>" class="text-sm bg-surface-1 hover:bg-surface-2 border border-border-subtle text-text-primary px-4 py-2 rounded transition">
+        ← Dashboard'a Dön
+      </a>
+    </div>
+
+    <!-- İçindekiler -->
+    <nav class="mb-10 bg-surface-1 border border-border-subtle rounded p-5 font-mono text-xs" aria-label="İçindekiler">
+      <div class="text-accent uppercase tracking-widest mb-3">&gt; index.map(bölüm =&gt; git)</div>
+      <ol class="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-2 text-text-secondary list-decimal list-inside">
+        <li><a href="#profil" class="hover:text-accent hover:underline transition-colors">Profil Düzenleme</a></li>
+        <li><a href="#herkese-acik-profil" class="hover:text-accent hover:underline transition-colors">Herkese Açık Profil</a></li>
+        <li><a href="#takip" class="hover:text-accent hover:underline transition-colors">Takip Sistemi</a></li>
+        <li><a href="#eslesme" class="hover:text-accent hover:underline transition-colors">Eşleşme Bulma</a></li>
+        <li><a href="#sohbet" class="hover:text-accent hover:underline transition-colors">Sohbet Odaları ve DM</a></li>
+        <li><a href="#komutlar" class="hover:text-accent hover:underline transition-colors">Sohbet Komutları (Slash)</a></li>
+        <li><a href="#post" class="hover:text-accent hover:underline transition-colors">Post Paylaşma</a></li>
+        <li><a href="#github" class="hover:text-accent hover:underline transition-colors">GitHub Repo Bağlama</a></li>
+        <li><a href="#bildirimler" class="hover:text-accent hover:underline transition-colors">Bildirimler</a></li>
+        <li><a href="#engelleme" class="hover:text-accent hover:underline transition-colors">Engelleme</a></li>
+        <li><a href="#sikayet" class="hover:text-accent hover:underline transition-colors">Şikayet / Report</a></li>
+        <li><a href="#ayarlar" class="hover:text-accent hover:underline transition-colors">Ayarlar</a></li>
+        <li><a href="#widgetlar" class="hover:text-accent hover:underline transition-colors">Dashboard Widget Sistemi</a></li>
+        <li><a href="#roller" class="hover:text-accent hover:underline transition-colors">Admin / Moderatör Roller</a></li>
+        <li><a href="#tema" class="hover:text-accent hover:underline transition-colors">Tema Seçimi</a></li>
+      </ol>
+    </nav>
+
+    <div class="flex flex-col gap-14">
+
+      <!-- ============ 1. PROFİL DÜZENLEME ============ -->
+      <section id="profil" class="scroll-mt-20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="font-mono text-accent text-sm">01</span>
+          <h2 class="text-xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Profil Düzenleme</h2>
+        </div>
+        <div class="bg-surface-1 border border-border-subtle rounded p-6">
+          <p class="text-sm text-text-secondary mb-3">
+            İlk durağın <span class="font-mono text-accent">Kontrol Kulesi</span> (<code class="font-mono text-text-primary">/profile/edit</code>) olmalı — eşleşme motoru
+            senin için kimseyi bulamadan önce en az bir <span class="text-text-primary">öğretebileceğin</span> ve bir <span class="text-text-primary">öğrenmek istediğin</span> yetenek
+            tanımlaman gerekiyor.
+          </p>
+          <ul class="text-sm text-text-secondary list-disc list-inside space-y-1.5 mb-4">
+            <li><span class="text-accent font-mono">System.out.println("Öğretebileceklerim")</span> bölümüne başkalarına öğretebileceğin yetenekleri ekle.</li>
+            <li><span class="text-indigo-500 dark:text-indigo-300 font-mono">await learnSkills()</span> bölümüne öğrenmek istediklerini ekle — bu liste boşsa dashboard'da uyarı görürsün ve eşleşme aramaz.</li>
+            <li>Her iki listede de arama kutulu (autocomplete/datalist) yetenek girişi kullanabilir, ya da kategori bazlı checkbox ızgarasından (Diller, Frontend Framework'ler, Veritabanları, Cloud &amp; DevOps, Machine Learning, vb.) toplu seçim yapabilirsin.</li>
+            <li>Her yetenek chip'inin altındaki <span class="font-mono text-text-muted">"düzenle"</span> akordeonundan seviyeni (Başlangıç/Orta/İleri/Uzman), kısa bir not ve kanıt linki (ör. bir proje URL'si) ekleyebilirsin.</li>
+            <li><span class="text-text-primary">Kapak Fotoğrafı</span> (banner) yükleyebilir veya kaldırabilirsin; ayrıca <span class="text-text-primary">Öğretim Formatı</span> (Birebir / Grup / Farketmez) ve bir <span class="text-text-primary">Müsaitlik Notu</span> (ör. "hafta içi akşamları") tanımlayarak eşleşen kişilerin seninle nasıl iletişime geçeceğini netleştirebilirsin.</li>
+          </ul>
+
+          <!-- Mockup: skill chip UI -->
+          <div class="border border-border-subtle rounded bg-surface-2 dark:bg-terminal-bg p-4">
+            <div class="text-[10px] font-mono text-text-muted uppercase tracking-widest mb-3">Önizleme — yetenek chip'leri</div>
+            <div class="flex flex-wrap gap-3">
+              <div class="flex items-center gap-2 bg-accent/10 border border-accent/30 px-3 py-1.5 rounded-sm">
+                <span class="text-accent text-sm font-mono">Ruby on Rails</span>
+                <span class="text-accent font-bold text-sm">×</span>
+              </div>
+              <div class="flex items-center gap-2 bg-accent/10 border border-accent/30 px-3 py-1.5 rounded-sm">
+                <span class="text-accent text-sm font-mono">PostgreSQL</span>
+                <span class="text-accent font-bold text-sm">×</span>
+              </div>
+              <div class="flex items-center gap-2 bg-indigo-500/10 border border-indigo-600/30 dark:border-indigo-400/30 px-3 py-1.5 rounded-sm">
+                <span class="text-indigo-700 dark:text-indigo-300 text-sm font-mono">Rust</span>
+                <span class="text-indigo-700 dark:text-indigo-300 font-bold text-sm">×</span>
+              </div>
+              <div class="flex items-center gap-1 bg-surface-1 border border-dashed border-accent/30 text-accent px-3 py-1.5 rounded-sm text-xs font-mono">
+                + Matrise Ekle
+              </div>
+            </div>
+            <p class="text-[10px] text-text-muted font-mono mt-3">emerald/accent = öğretiyorsun · indigo = öğrenmek istiyorsun</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 2. HERKESE AÇIK PROFİL SAYFASI ============ -->
+      <section id="herkese-acik-profil" class="scroll-mt-20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="font-mono text-accent text-sm">02</span>
+          <h2 class="text-xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Herkese Açık Profil Sayfası</h2>
+        </div>
+        <div class="bg-surface-1 border border-border-subtle rounded p-6">
+          <p class="text-sm text-text-secondary mb-3">
+            Kontrol Kulesi senin <span class="text-text-primary">düzenleme</span> ekranın; herkesin (giriş yapmamış ziyaretçiler dahil) gördüğü
+            <span class="text-text-primary">herkese açık profil</span> ise ayrı bir sayfadır. Kendi profiline sağ üstteki kullanıcı adı menüsünden
+            <span class="font-mono text-text-primary">Profil</span> ile, başkalarınınkine ise adlarına tıklayarak ulaşırsın. Sayfa Facebook tarzı bir
+            düzene sahiptir:
+          </p>
+          <ul class="text-sm text-text-secondary list-disc list-inside space-y-1.5 mb-4">
+            <li>Üstte geniş bir <span class="text-text-primary">kapak (banner)</span> ve onun sol-alt köşesine üste binen büyük bir <span class="text-text-primary">avatar</span>, altında isim ve rol etiketi bulunur.</li>
+            <li>İsmin yanında <span class="text-text-primary">takipçi</span> ve <span class="text-text-primary">takip</span> sayaçları yer alır; sayılara tıklayınca ilgili kişi listesi açılır.</li>
+            <li>Başkasının profiline bakıyorsan sağ üstte <span class="font-mono text-accent">Takip Et</span> / <span class="font-mono">Takibi Bırak</span>, <span class="font-mono text-accent">Sohbet Aç</span> ve bir <span class="font-mono">⋯</span> (üç nokta) menüsü çıkar — bu menü <span class="text-status-warn">Şikayet Et</span> ve <span class="text-status-err">Engelle</span> seçeneklerini barındırır.</li>
+            <li>Başlığın altında <span class="text-text-primary">özelleştirilebilir bir widget ızgarası</span> (Gridstack) vardır: <span class="font-mono">Hakkında/biyo</span> kartı, öğretebildiğin yetenekler, öğrenmek istediğin yetenekler, GitHub repoların ve yeniden paylaşımların (repost) ayrı kartlar hâlinde dizilir.</li>
+            <li>Kendi profilinde <span class="font-mono text-text-primary">Düzenle</span> ile bu kartları sürükleyip boyutlandırabilir, gizleyebilir veya yazı boyutunu ayarlayabilir; <span class="font-mono">Varsayılana Dön</span> ile (onay sorulur) düzeni sıfırlayabilirsin. Ziyaretçiler ızgarayı senin kaydettiğin hâliyle salt-okunur görür.</li>
+          </ul>
+
+          <!-- Mockup: public profile header -->
+          <div class="border border-border-subtle rounded bg-surface-2 dark:bg-terminal-bg p-4">
+            <div class="text-[10px] font-mono text-text-muted uppercase tracking-widest mb-3">Önizleme — profil başlığı</div>
+            <div class="max-w-md">
+              <div class="relative">
+                <div class="w-full aspect-[3/1] rounded-t-lg border border-border-subtle"
+                     style="background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 70%, transparent) 0%, color-mix(in srgb, var(--chart-1) 70%, transparent) 100%);" aria-hidden="true"></div>
+                <div class="absolute -bottom-8 left-4 z-10">
+                  <div class="w-16 h-16 rounded-full border-4 shadow-lg flex items-center justify-center text-xl font-bold text-accent"
+                       style="border-color: var(--surface-0); background-color: var(--surface-2);">A</div>
+                </div>
+              </div>
+              <div class="bg-surface-1 border-x border-b border-border-subtle rounded-b-lg pt-10 pb-3 px-4 flex justify-between items-end">
+                <div>
+                  <h3 class="text-base font-bold text-text-primary dark:text-accent-fg">Ada Yılmaz</h3>
+                  <p class="text-[9px] font-mono text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mt-0.5">BACKEND DEVELOPER</p>
+                  <div class="flex items-center gap-3 mt-2 text-xs">
+                    <span><span class="font-bold text-text-primary" style="font-variant-numeric: tabular-nums;">128</span> <span class="text-text-muted">takipçi</span></span>
+                    <span><span class="font-bold text-text-primary" style="font-variant-numeric: tabular-nums;">73</span> <span class="text-text-muted">takip</span></span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[10px] font-mono bg-accent/10 border border-accent/30 text-accent px-2.5 py-1 rounded">Takip Et</span>
+                  <span class="text-[10px] font-mono bg-accent/10 border border-accent/30 text-accent px-2.5 py-1 rounded">Sohbet Aç</span>
+                  <span class="w-6 h-6 flex items-center justify-center rounded-full border border-border-subtle text-text-muted">⋯</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 3. TAKİP SİSTEMİ ============ -->
+      <section id="takip" class="scroll-mt-20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="font-mono text-accent text-sm">03</span>
+          <h2 class="text-xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Takip Sistemi</h2>
+        </div>
+        <div class="bg-surface-1 border border-border-subtle rounded p-6">
+          <p class="text-sm text-text-secondary mb-3">
+            İlgini çeken geliştiricileri <span class="text-text-primary">takip edebilirsin</span>. Takip tek yönlüdür (karşı tarafın onayı gerekmez) ve
+            kendini takip edemezsin.
+          </p>
+          <ul class="text-sm text-text-secondary list-disc list-inside space-y-1.5">
+            <li>Bir kişinin herkese açık profilindeki <span class="font-mono text-accent">Takip Et</span> butonuna bas; buton anında <span class="font-mono">Takibi Bırak</span>'a döner ve takipçi sayacı güncellenir. Aynı butondan istediğin zaman takibi bırakabilirsin.</li>
+            <li>Her profildeki <span class="text-text-primary">takipçi</span> ve <span class="text-text-primary">takip</span> sayılarına tıklayınca, o kişiyi takip eden veya onun takip ettiği kullanıcıların listesi açılır — listedeki isimlere tıklayıp profillerine geçebilirsin.</li>
+            <li>Engellediğin (ya da seni engelleyen) biriyle takip ilişkisi kurulamaz; engelleme ikisini de birbirinden gizler.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============ 4. EŞLEŞME BULMA ============ -->
+      <section id="eslesme" class="scroll-mt-20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="font-mono text-accent text-sm">04</span>
+          <h2 class="text-xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Eşleşme Bulma</h2>
+        </div>
+        <div class="bg-surface-1 border border-border-subtle rounded p-6">
+          <p class="text-sm text-text-secondary mb-3">
+            Dashboard'ın ana bileşeni <span class="font-mono text-accent">sys.match_algorithm(...)</span> arama çubuğudur. Bir yetenek adı yazıp
+            <span class="font-mono text-text-primary">Çalıştır</span>'a bastığında (veya boş bırakıp çalıştırdığında), profilindeki
+            <span class="text-text-primary">öğrenmek istediğin</span> yetenekler ile diğer kullanıcıların <span class="text-text-primary">öğretebildiği</span> yetenekler
+            karşılaştırılarak sana en uygun kişiler listelenir.
+          </p>
+          <ul class="text-sm text-text-secondary list-disc list-inside space-y-1.5 mb-4">
+            <li>Her kart bir <span class="text-text-primary">Eşleşme Kalitesi</span> yüzdesi gösterir — bu, seninle o kişi arasındaki gerçek beceri örtüşmesine (senin öğrenmek istediklerinle onun öğretebildikleri arasındaki eşleşmeye) dayanır, sadece yüzeysel bir benzerlik skoru değildir.</li>
+            <li>Kartın altındaki <span class="font-mono text-accent">→ neden eşleştiği</span> satırı varsa, sistemin o kişiyi neden önerdiğini kısaca açıklar.</li>
+            <li><span class="font-mono text-emerald-600 dark:text-emerald-400">Karşılıklı</span> rozeti, karşı tarafın da senden bir şey öğrenmek istediği (iki yönlü bir eşleşme olduğu) anlamına gelir — bu genelde en verimli eşleşmelerdir.</li>
+            <li><span class="text-text-primary">Bağlantı Kur</span> butonuna bastığında o kişiyle otomatik olarak bir eşleşme kaynaklı (match) özel DM odası açılır ve doğrudan sohbete yönlendirilirsin.</li>
+            <li>Sonuçlar 4'erli sayfalara bölünür; kart listesinin altındaki <span class="font-mono">‹ Önceki</span> / <span class="font-mono">Sonraki ›</span> ile gezinebilirsin.</li>
+          </ul>
+
+          <!-- Mockup: match card -->
+          <div class="border border-border-subtle rounded bg-surface-2 dark:bg-terminal-bg p-4">
+            <div class="text-[10px] font-mono text-text-muted uppercase tracking-widest mb-3">Önizleme — eşleşme kartı</div>
+            <div class="bg-surface-1 border border-border-subtle p-4 max-w-md relative">
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-base font-bold text-text-primary dark:text-accent-fg">Ada Yılmaz</h3>
+                    <span class="inline-flex items-center gap-1 text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border" style="color: var(--status-ok); border-color: var(--status-ok); background-color: color-mix(in srgb, var(--status-ok) 12%, transparent);">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                      Karşılıklı
+                    </span>
+                  </div>
+                  <p class="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mt-1">BACKEND DEVELOPER</p>
+                </div>
+                <span class="border border-indigo-200 dark:border-indigo-900 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 px-4 py-1.5 rounded text-xs font-bold">Bağlantı Kur</span>
+              </div>
+              <p class="text-sm text-text-secondary mb-3">Rust ve dağıtık sistemler üzerine çalışıyorum, Rails öğrenmek istiyorum.</p>
+              <p class="text-[10px] font-mono text-accent mb-2">→ Rails öğretebiliyor, Rust öğrenmek istiyorsun</p>
+              <div class="mb-2">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-[10px] font-mono text-text-muted uppercase tracking-widest">Eşleşme Kalitesi</span>
+                  <span class="text-[10px] font-mono text-text-secondary">%87</span>
+                </div>
+                <div class="rounded-full overflow-hidden" style="height: 6px; background-color: var(--border-subtle);">
+                  <div class="h-full rounded-full" style="width: 87%; background-color: var(--chart-1);"></div>
+                </div>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <span class="text-[10px] font-mono border border-border-subtle bg-surface-2 dark:bg-transparent text-text-secondary px-2 py-0.5"><span class="text-accent">&gt;</span> Rust</span>
+                <span class="text-[10px] font-mono border border-border-subtle bg-surface-2 dark:bg-transparent text-text-secondary px-2 py-0.5"><span class="text-accent">&gt;</span> gRPC</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 5. SOHBET ODALARI VE DM ============ -->
+      <section id="sohbet" class="scroll-mt-20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="font-mono text-accent text-sm">05</span>
+          <h2 class="text-xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Sohbet Odaları ve DM</h2>
+        </div>
+        <div class="bg-surface-1 border border-border-subtle rounded p-6">
+          <p class="text-sm text-text-secondary mb-3">
+            Dashboard'daki sohbet panelinin üstünde oda sekmeleri bulunur. İki tip oda vardır:
+          </p>
+          <ul class="text-sm text-text-secondary list-disc list-inside space-y-1.5 mb-4">
+            <li><span class="text-text-primary">Genel konu odaları</span> (Genel, Backend, Frontend vb.) — herkese açık, büyük harfli sekme başlıklarıyla gösterilir, istediğin zaman katılıp mesaj yazabilirsin.</li>
+            <li><span class="text-text-primary">Özel 1:1 DM'ler</span> — <span class="font-mono text-text-muted">@</span> simgesiyle başlayan sekmeler, karşı tarafın adını gösterir.</li>
+            <li>
+              DM'lerin kendi içinde de iki türü var: <span class="font-mono text-amber-500">Eşleşme</span> rozetli olanlar dashboard'daki
+              "Bağlantı Kur" akışından açılır ve sohbet panelinde <span class="text-text-primary">İlişkiyi Sonlandır</span> butonu ile iki taraflı
+              yıldız değerlendirmesi (★1-5 + opsiyonel not) sunar; profildeki "Sohbet Aç" gibi doğrudan başlatılan DM'lerde ise bu rozet ve
+              buton yoktur — sıradan bir sohbet gibi davranır.
+            </li>
+            <li>Mesajlarda emoji <span class="text-text-primary">reaksiyon</span> ekleyebilir, kendi mesajını düzenleyebilir/silebilirsin (moderatörler herkesin mesajını silebilir); kullanıcı adına tıklayarak profiline gidebilirsin.</li>
+          </ul>
+
+          <!-- Mockup: room tabs + chat message with reaction -->
+          <div class="border border-border-subtle rounded bg-surface-2 dark:bg-terminal-bg p-4">
+            <div class="text-[10px] font-mono text-text-muted uppercase tracking-widest mb-3">Önizleme — oda sekmeleri &amp; mesaj</div>
+            <div class="bg-terminal-bg border border-terminal-border rounded overflow-hidden max-w-md">
+              <div class="flex items-center gap-1 border-b border-terminal-border bg-terminal-bg-3 px-2 overflow-x-auto">
+                <span class="px-3 py-2 text-xs font-mono tracking-widest uppercase border-b-2 border-prompt-color text-prompt-color">GENEL</span>
+                <span class="px-3 py-2 text-xs font-mono tracking-widest uppercase border-b-2 border-transparent text-terminal-text-muted">BACKEND</span>
+                <span class="flex items-center gap-1 px-3 py-2 text-xs font-mono tracking-widest border-b-2 border-emerald-500 text-emerald-500 whitespace-nowrap">
+                  @ Ada Yılmaz
+                  <span class="ml-1 text-[8px] uppercase tracking-widest text-amber-500 border border-amber-500/40 rounded px-1 py-0.5 leading-none">Eşleşme</span>
+                </span>
+              </div>
+              <div class="p-3">
+                <div class="text-xs font-mono">
+                  <span class="text-accent font-bold">Ada Yılmaz</span>
+                  <span class="text-terminal-text-muted">· 2dk önce</span>
+                </div>
+                <p class="text-sm text-terminal-text font-mono mt-0.5">Rails öğrenmeye ne zaman başlayalım? 🚀</p>
+                <div class="mt-1 flex items-center gap-1">
+                  <span class="inline-flex items-center gap-1 bg-surface-1 border border-border-subtle rounded-full px-2 py-0.5 text-[10px] font-mono">👍 <span class="text-text-muted">2</span></span>
+                  <span class="inline-flex items-center gap-1 bg-surface-1 border border-border-subtle rounded-full px-2 py-0.5 text-[10px] font-mono">🔥 <span class="text-text-muted">1</span></span>
+                </div>
+              </div>
+              <div class="border-t border-terminal-border px-4 py-2 flex items-center justify-between gap-2 text-xs font-mono">
+                <span class="text-terminal-text-muted">Karşı tarafı henüz değerlendirmedin.</span>
+                <span class="text-[10px] text-terminal-text-muted border border-terminal-border px-2 py-1 rounded">İlişkiyi Sonlandır</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 6. SOHBET KOMUTLARI (SLASH) ============ -->
+      <section id="komutlar" class="scroll-mt-20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="font-mono text-accent text-sm">06</span>
+          <h2 class="text-xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Sohbet Komutları (Slash)</h2>
+        </div>
+        <div class="bg-surface-1 border border-border-subtle rounded p-6">
+          <p class="text-sm text-text-secondary mb-3">
+            Sohbet giriş kutusuna <span class="font-mono text-accent">/</span> ile başlayan bir komut yazıp Enter'a basarsan, mesaj gönderilmez;
+            bunun yerine komut çalışır ve sonucu <span class="font-mono text-text-primary">[SYS_EXEC]</span> etiketli bir sistem satırı olarak görünür.
+            Yukarı/aşağı ok tuşlarıyla komut geçmişinde gezinebilirsin. Her kullanıcının kullanabileceği komutlar:
+          </p>
+          <ul class="text-sm text-text-secondary list-disc list-inside space-y-1.5 mb-3 font-mono">
+            <li><span class="text-accent">/clear</span> — terminal ekranını temizler</li>
+            <li><span class="text-accent">/whoami</span> — yetki seviyeni gösterir</li>
+            <li><span class="text-accent">/ping</span> — ağ gecikmesini test eder</li>
+            <li><span class="text-accent">/omni</span> — kişisel durum panelini (GitHub bağlı mı, kaç yetenek vb.) gösterir</li>
+            <li><span class="text-accent">/rules</span> — platform kurallarının kısa özetini gösterir</li>
+            <li><span class="text-accent">/help</span> — kullanılabilir komut listesini gösterir</li>
+            <li><span class="text-accent">/report &lt;isim&gt;</span> — o kullanıcı için şikayet panelini açar</li>
+            <li><span class="text-accent">/block &lt;isim&gt;</span> — kullanıcıyı engeller</li>
+            <li><span class="text-accent">/unblock &lt;isim&gt;</span> — engeli kaldırır</li>
+          </ul>
+          <p class="text-sm text-text-secondary">
+            Komutların hepsi dashboard'daki <span class="font-mono text-text-primary">Terminal Kısayolları</span> (sarı yapışkan not) widget'ında listelenir;
+            bir satıra tıklayınca komut otomatik olarak sohbet kutusuna yazılır. Staff/admin kullanıcılar bu widget'ta ek moderasyon komutlarını
+            (<span class="font-mono">/mute</span>, <span class="font-mono">/unmute</span>, <span class="font-mono">/ban</span>, <span class="font-mono">/unban</span>) da görür — bunlar sıradan kullanıcılara görünmez.
+          </p>
+        </div>
+      </section>
+
+      <!-- ============ 7. POST PAYLAŞMA ============ -->
+      <section id="post" class="scroll-mt-20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="font-mono text-accent text-sm">07</span>
+          <h2 class="text-xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Post Paylaşma</h2>
+        </div>
+        <div class="bg-surface-1 border border-border-subtle rounded p-6">
+          <p class="text-sm text-text-secondary mb-3">
+            <span class="font-mono text-accent">/posts</span> sayfası global ağ akışıdır (dev_feed). Üstteki
+            <span class="font-mono text-text-primary">&gt; POST OLUŞTUR</span> kutusundan opsiyonel başlık + içerik yazıp, arama kutulu
+            etiket seçiciden (yetenek/araç adı yazarak veya listeden seçerek) ilgili chip'leri ekleyip paylaşabilirsin.
+          </p>
+          <ul class="text-sm text-text-secondary list-disc list-inside space-y-1.5 mb-4">
+            <li>Her postun altında bir etkileşim çubuğu vardır: <span class="text-rose-500">beğen</span> (kalp), <span class="text-text-primary">yorum</span>, <span class="text-emerald-500">yeniden paylaş</span> (repost), <span class="text-text-primary">DM olarak gönder</span> (alıcı gizli kalır, sadece sayı görünür) ve sağda <span class="text-amber-500">kaydet</span>.</li>
+            <li>Beğenen/yeniden paylaşan kişi listesini sayının üstüne tıklayarak açılan pop-up'tan görebilirsin.</li>
+            <li>Postlar akış içinde etiketlerine tıklanarak (<span class="font-mono text-accent">#etiket</span>) o etikete filtrelenmiş akışa gidilebilir.</li>
+            <li>Başkasının postundaki <span class="font-mono">⋯</span> menüsünden <span class="text-status-warn">Bu postu şikayet et</span>, <span class="text-emerald-500">İlgileniyorum</span> / <span class="text-status-err">İlgilenmiyorum</span> ve <span class="text-status-err">Engelle</span> seçeneklerine ulaşırsın. <span class="text-text-primary">İlgilenmiyorum</span> dediğin kişiler akışında geri plana atılır ve <span class="font-mono">Ayarlar</span> sayfasından geri alınabilir.</li>
+            <li>
+              Arama kutusu GitHub'daki gibi bir sözdizimi destekler:
+              <span class="font-mono text-text-primary">Users:isim</span> (yazar adında geçen), <span class="font-mono text-text-primary">tag:react,laravel</span>
+              (bu etiketlerden herhangi biri) ve geri kalan serbest metin içerik/başlıkta aranır — hepsi aynı anda, boşlukla ayrılarak kullanılabilir
+              (ör. <span class="font-mono text-text-secondary">"Users:ayberk tag:react,laravel turbo stream"</span>).
+            </li>
+            <li>Akışı <span class="text-text-primary">en son / en çok beğenilen / en çok yeniden paylaşılan</span> olarak sıralayabilir, <span class="text-text-primary">bugün / bu hafta / bu ay / tümü</span> zaman aralığına göre filtreleyebilirsin.</li>
+          </ul>
+
+          <!-- Mockup: post card with action row -->
+          <div class="border border-border-subtle rounded bg-surface-2 dark:bg-terminal-bg p-4">
+            <div class="text-[10px] font-mono text-text-muted uppercase tracking-widest mb-3">Önizleme — post kartı</div>
+            <div class="border border-border-subtle bg-surface-1 rounded-xl overflow-hidden max-w-md">
+              <div class="flex items-center gap-3 px-4 pt-4 pb-3">
+                <span class="w-10 h-10 rounded-full bg-surface-2 border border-border-subtle inline-flex items-center justify-center text-sm font-mono text-accent">E</span>
+                <div class="min-w-0 flex-1">
+                  <span class="block font-semibold text-sm text-text-primary">Efe Kara</span>
+                  <span class="text-text-muted text-[11px] font-mono">12 dakika önce</span>
+                </div>
+              </div>
+              <div class="px-4 pb-3">
+                <p class="text-text-secondary font-mono text-sm leading-relaxed">Turbo Streams ile canlı bildirim akışını bitirdim, kod bende.</p>
+                <div class="flex flex-wrap gap-1.5 mt-3">
+                  <span class="text-[10px] font-mono border border-accent/30 bg-accent/10 text-accent px-2 py-0.5 rounded-full">#turbo</span>
+                  <span class="text-[10px] font-mono border border-accent/30 bg-accent/10 text-accent px-2 py-0.5 rounded-full">#rails</span>
+                </div>
+              </div>
+              <div class="px-2 pb-3">
+                <div class="flex items-center gap-1 text-text-muted px-2">
+                  <span class="flex items-center gap-1.5 px-2 py-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg><span class="text-[11px] font-mono">14</span></span>
+                  <span class="flex items-center gap-1.5 px-2 py-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span class="text-[11px] font-mono">3</span></span>
+                  <span class="flex items-center gap-1.5 px-2 py-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span class="text-[11px] font-mono">5</span></span>
+                  <span class="flex items-center gap-1.5 px-2 py-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span class="text-[11px] font-mono">1</span></span>
+                  <span class="ml-auto flex items-center px-2 py-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 8. GITHUB REPO BAĞLAMA ============ -->
+      <section id="github" class="scroll-mt-20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="font-mono text-accent text-sm">08</span>
+          <h2 class="text-xl font-bold tracking-tight text-text-primary dark:text-accent-fg">GitHub Repo Bağlama</h2>
+        </div>
+        <div class="bg-surface-1 border border-border-subtle rounded p-6">
+          <p class="text-sm text-text-secondary mb-3">
+            DevSwap'a zaten GitHub üzerinden giriş yapıyorsun; bu bağlantı sayesinde sistem repolarını tarayıp öne çıkan dillerini/araçlarını
+            otomatik olarak profiline yetenek olarak önerebilir (dashboard'da <span class="font-mono text-accent">GITHUB_SCAN.detected()</span>
+            kutusunda görürsün).
+          </p>
+          <ul class="text-sm text-text-secondary list-disc list-inside space-y-1.5">
+            <li>Taranan repoların listesi <span class="font-mono text-text-primary">Kontrol Kulesi</span>'nde, profil formunun altında
+              <span class="font-mono text-accent">&gt; GITHUB_REPOLARI</span> başlığı altında görünür.</li>
+            <li>Her repo için ayrı bir görünürlük anahtarı vardır — işaretlediklerin herkese açık profilinde (yıldız sayısı ve ana dille birlikte) listelenir, işaretlemediklerin gizli kalır.</li>
+            <li>Bu ayar anında (sayfa yenilemeden) kaydedilir; istediğin zaman geri açıp kapatabilirsin.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============ 9. BİLDİRİMLER ============ -->
+      <section id="bildirimler" class="scroll-mt-20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="font-mono text-accent text-sm">09</span>
+          <h2 class="text-xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Bildirimler</h2>
+        </div>
+        <div class="bg-surface-1 border border-border-subtle rounded p-6">
+          <p class="text-sm text-text-secondary mb-3">
+            Öğrenmek istediğin bir yetenekle ilgili yeni bir post paylaşıldığında sistem seni bilgilendirir. Bunu üç yerden takip edebilirsin:
+          </p>
+          <ul class="text-sm text-text-secondary list-disc list-inside space-y-1.5 mb-4">
+            <li>Dashboard'ın sağ üstündeki <span class="font-mono text-accent">🔔 bildirim</span> zili — okunmamış sayısını rozet olarak gösterir, tıklayınca son bildirimleri açılır bir menüde listeler.</li>
+            <li>Dashboard'daki <span class="text-text-primary">Bildirimler</span> widget'ı, aynı listeyi widget kartı içinde gösterir.</li>
+            <li>Zil menüsünün altındaki <span class="font-mono text-text-primary">Tüm bildirimleri gör</span> bağlantısı, tüm zamanların bildirim geçmişini (aktif + kapatılmış, sayfalanmış) ayrı bir sayfada listeler; bu sayfayı açtığında zil rozetindeki sayaç sıfırlanır. Kapattığın genel admin duyuruları da burada ayrı bir bölümde saklanır.</li>
+            <li>Her bildirimde <span class="font-mono text-text-primary">İlgileniyorum</span> (postu okumak istediğini işaretler) veya <span class="font-mono text-text-primary">Kapat</span> (bildirimi kapatır, listeden kaldırır) seçeneği vardır.</li>
+          </ul>
+
+          <!-- Mockup: bell -->
+          <div class="border border-border-subtle rounded bg-surface-2 dark:bg-terminal-bg p-4">
+            <div class="text-[10px] font-mono text-text-muted uppercase tracking-widest mb-3">Önizleme — bildirim zili</div>
+            <span class="inline-flex items-center gap-1.5 border border-border-subtle bg-surface-1 text-text-secondary px-3 py-1.5 rounded text-xs font-mono">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+              <span class="text-accent">bildirim</span>
+              <span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-white text-[10px] font-bold">3</span>
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 10. ENGELLEME ============ -->
+      <section id="engelleme" class="scroll-mt-20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="font-mono text-accent text-sm">10</span>
+          <h2 class="text-xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Engelleme</h2>
+        </div>
+        <div class="bg-surface-1 border border-border-subtle rounded p-6">
+          <p class="text-sm text-text-secondary mb-3">
+            Kendini korumak için herhangi bir kullanıcıyı <span class="text-status-err">engelleyebilirsin</span> — bu bir self-servis özelliktir, staff yetkisi gerektirmez.
+            Engelleme karşılıklı bir görünürlük duvarı örer.
+          </p>
+          <ul class="text-sm text-text-secondary list-disc list-inside space-y-1.5 mb-4">
+            <li>Engellemeyi bir postun ya da profilin <span class="font-mono">⋯</span> menüsündeki <span class="text-status-err">Engelle</span> seçeneğinden (onay sorulur) veya sohbette <span class="font-mono text-accent">/block &lt;isim&gt;</span> komutuyla yapabilirsin.</li>
+            <li>Engelledikten sonra iki taraf da birbirinin <span class="text-text-primary">postlarını ve profilini</span> göremez, yeni bir DM açamaz ve eşleşemez.</li>
+            <li>Aynı menü, zaten engellediğin biri için <span class="font-mono">Engeli Kaldır</span>'a döner. Tüm engellediklerini <span class="font-mono text-text-primary">Ayarlar → Engellenenler</span> bölümünden görebilir ve oradan da kaldırabilirsin (<span class="font-mono text-accent">/unblock &lt;isim&gt;</span> komutu da çalışır).</li>
+          </ul>
+
+          <!-- Mockup: post/profile ⋯ menu -->
+          <div class="border border-border-subtle rounded bg-surface-2 dark:bg-terminal-bg p-4">
+            <div class="text-[10px] font-mono text-text-muted uppercase tracking-widest mb-3">Önizleme — ⋯ menüsü</div>
+            <div class="w-52 bg-surface-1 border border-border-subtle rounded shadow-2xl overflow-hidden text-xs font-mono">
+              <div class="px-3 py-2 text-status-warn border-b border-border-subtle">Şikayet Et</div>
+              <div class="px-3 py-2 text-text-muted">İlgileniyorum</div>
+              <div class="px-3 py-2 text-text-muted">İlgilenmiyorum</div>
+              <div class="px-3 py-2 text-status-err border-t border-border-subtle">Engelle</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 11. ŞİKAYET / REPORT ============ -->
+      <section id="sikayet" class="scroll-mt-20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="font-mono text-accent text-sm">11</span>
+          <h2 class="text-xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Şikayet / Report</h2>
+        </div>
+        <div class="bg-surface-1 border border-border-subtle rounded p-6">
+          <p class="text-sm text-text-secondary mb-3">
+            Kural ihlali yapan bir kullanıcıyı veya postu moderasyon ekibine bildirebilirsin. Şikayet, ortak bir
+            <span class="text-text-primary">şikayet modalı</span> üzerinden gönderilir.
+          </p>
+          <ul class="text-sm text-text-secondary list-disc list-inside space-y-1.5 mb-4">
+            <li>Modalı bir postun/profilin <span class="font-mono">⋯</span> menüsündeki <span class="text-status-warn">Şikayet Et</span> (veya "Bu postu şikayet et") seçeneğinden ya da sohbette <span class="font-mono text-accent">/report &lt;isim&gt;</span> komutuyla açarsın.</li>
+            <li>Modalda bir <span class="text-text-primary">açıklama</span> yazar, isteğe bağlı bir <span class="text-text-primary">kanıt görseli</span> ekleyip gönderirsin. (Asılsız/kötü niyetli şikayetler de kural ihlali sayılır.)</li>
+            <li>Gönderdiğin şikayetlerin durumunu kendi <span class="font-mono text-text-primary">Şikayetlerim</span> sayfandan takip edebilirsin; her kayıt <span class="text-status-warn">Beklemede</span>, <span class="text-accent">İncelendi</span>, <span class="text-status-ok">İşlem Yapıldı</span> veya <span class="text-text-muted">Reddedildi</span> durumundan birini gösterir.</li>
+          </ul>
+
+          <!-- Mockup: Şikayetlerim status table -->
+          <div class="border border-border-subtle rounded bg-surface-2 dark:bg-terminal-bg p-4">
+            <div class="text-[10px] font-mono text-text-muted uppercase tracking-widest mb-3">Önizleme — şikayet durumu</div>
+            <div class="border border-border-subtle rounded overflow-hidden bg-surface-1 max-w-md font-mono">
+              <table class="w-full text-xs">
+                <thead class="bg-surface-2 text-text-muted">
+                  <tr>
+                    <th class="text-left px-3 py-2">Hedef</th>
+                    <th class="text-left px-3 py-2">Açıklama</th>
+                    <th class="text-left px-3 py-2">Durum</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-border-subtle">
+                  <tr>
+                    <td class="px-3 py-2 text-accent">spam_bot</td>
+                    <td class="px-3 py-2 text-text-muted italic">Reklam spam'i…</td>
+                    <td class="px-3 py-2"><span class="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full border tracking-wider" style="color: var(--status-ok); border-color: var(--status-ok); background-color: color-mix(in srgb, var(--status-ok) 12%, transparent);">İşlem Yapıldı</span></td>
+                  </tr>
+                  <tr>
+                    <td class="px-3 py-2 text-accent">troll_dev</td>
+                    <td class="px-3 py-2 text-text-muted italic">Hakaret içeriyor…</td>
+                    <td class="px-3 py-2"><span class="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full border tracking-wider" style="color: var(--status-warn); border-color: var(--status-warn); background-color: color-mix(in srgb, var(--status-warn) 12%, transparent);">Beklemede</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 12. AYARLAR ============ -->
+      <section id="ayarlar" class="scroll-mt-20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="font-mono text-accent text-sm">12</span>
+          <h2 class="text-xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Ayarlar</h2>
+        </div>
+        <div class="bg-surface-1 border border-border-subtle rounded p-6">
+          <p class="text-sm text-text-secondary mb-3">
+            Sağ üstteki kullanıcı adı menüsünden <span class="font-mono text-text-primary">Ayarlar</span>'a girersin (<code class="font-mono text-text-primary">settings.sh</code>).
+            Bu birleşik sayfa senin kişisel listelerini üç bölümde toplar:
+          </p>
+          <ul class="text-sm text-text-secondary list-disc list-inside space-y-1.5 mb-4">
+            <li><span class="text-amber-500 font-mono">Kaydedilenler</span> — postlarda "kaydet" ile sakladığın postların tam listesi.</li>
+            <li><span class="text-indigo-500 font-mono">İlgilenmediklerim</span> — post menüsünden <span class="font-mono">İlgilenmiyorum</span> dediğin kişiler; her biri için <span class="font-mono">Geri Al</span> ile tercihi kaldırabilirsin.</li>
+            <li><span class="text-status-err font-mono">Engellenenler</span> — engellediğin kullanıcılar; her satırdaki <span class="font-mono">Engeli Kaldır</span> ile listeden çıkarabilirsin.</li>
+          </ul>
+
+          <!-- Mockup: settings quick-nav -->
+          <div class="border border-border-subtle rounded bg-surface-2 dark:bg-terminal-bg p-4">
+            <div class="text-[10px] font-mono text-text-muted uppercase tracking-widest mb-3">Önizleme — ayarlar gezinmesi</div>
+            <div class="flex flex-wrap gap-2 font-mono text-xs">
+              <span class="px-3 py-1.5 rounded border border-border-subtle text-text-muted">Kaydedilenler (8)</span>
+              <span class="px-3 py-1.5 rounded border border-border-subtle text-text-muted">İlgilenmediklerim (2)</span>
+              <span class="px-3 py-1.5 rounded border border-border-subtle text-text-muted">Engellenenler (1)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 13. DASHBOARD WIDGET SİSTEMİ ============ -->
+      <section id="widgetlar" class="scroll-mt-20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="font-mono text-accent text-sm">13</span>
+          <h2 class="text-xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Dashboard Widget Sistemi</h2>
+        </div>
+        <div class="bg-surface-1 border border-border-subtle rounded p-6">
+          <p class="text-sm text-text-secondary mb-3">
+            Dashboard, kendi widget'larını serbestçe düzenleyebildiğin bir ızgara (grid) sistemidir. Üstteki
+            <span class="font-mono text-text-primary">Düzenle</span> butonuna basınca düzenleme moduna girersin:
+          </p>
+          <ul class="text-sm text-text-secondary list-disc list-inside space-y-1.5 mb-4">
+            <li>Widget'ları sürükleyip yeniden konumlandırabilir, köşesinden tutup boyutlandırabilirsin (Gridstack.js ile).</li>
+            <li>Her widget'ın üstünde beliren mini araç çubuğundan <span class="font-mono">Gizle</span>, <span class="font-mono">A-</span> (yazıyı küçült) ve <span class="font-mono">A+</span> (yazıyı büyüt) kontrollerini kullanabilirsin.</li>
+            <li>Gizlediğin widget'lar kaybolmaz — araç çubuğunun yanındaki <span class="font-mono text-text-primary">Gizli:</span> listesinde <span class="font-mono">+ widget_adı</span> olarak belirir; tıklayınca geri gelir.</li>
+            <li>Düzen (konum/boyut) ve görünürlük değişiklikleri otomatik kaydedilir, bir sonraki girişinde aynı şekilde karşına çıkar.</li>
+            <li>İşleri karıştırırsan <span class="font-mono text-text-primary">Varsayılana Dön</span> butonu (onay ister) tüm düzeni fabrika ayarına sıfırlar. Aynı sıfırlama butonu herkese açık profil ızgarası için de vardır.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============ 14. ADMIN / MODERATÖR ROLLER ============ -->
+      <section id="roller" class="scroll-mt-20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="font-mono text-accent text-sm">14</span>
+          <h2 class="text-xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Admin / Moderatör Roller</h2>
+        </div>
+        <div class="bg-surface-1 border border-border-subtle rounded p-6">
+          <p class="text-sm text-text-secondary mb-3">
+            Platformda rol tabanlı bir moderasyon sistemi vardır (üye / moderatör / admin). Bu bölüm yalnızca bilgilendirme amaçlıdır — sıradan bir
+            kullanıcı olarak bu araçlara erişimin olmaz, ama arka planda nelerin döndüğünü bilmen faydalı olur:
+          </p>
+          <ul class="text-sm text-text-secondary list-disc list-inside space-y-1.5 mb-4">
+            <li><span class="text-text-primary">Moderatörler (staff)</span> kullanıcıları arayabildiği bir panele erişir ve sohbette <span class="font-mono">/mute</span> ile kullanıcıları geçici olarak susturabilir; ayrıca herkesin sohbet mesajını silebilir.</li>
+            <li><span class="text-text-primary">Adminler</span> ek olarak bir Telemetri paneline (sistem istatistikleri, kullanıcı aktivite kaydı, rol atama, DM inceleme, ban yönetimi) ve şikayet inceleme ekranına (şikayeti işaretle / reddet / sil, gerekirse ban) erişir; <span class="font-mono">/ban</span> komutuyla hesap banlayabilirler.</li>
+            <li>Adminler ayrıca <span class="text-text-primary">site geneli duyurular</span> yayınlayabilir. Bu duyuruları sıradan bir kullanıcı olarak sayfanın üstünde bir bant hâlinde görürsün; kapatabilirsin ve kapattıkların bildirim geçmişi sayfanda saklanır.</li>
+          </ul>
+          <p class="text-sm text-text-secondary">
+            Kısacası: kurallara uyduğun sürece bu araçlarla hiç karşılaşmazsın; ama bir kural ihlali bildirildiğinde arkada bu moderasyon zinciri devreye girer.
+          </p>
+        </div>
+      </section>
+
+      <!-- ============ 15. TEMA SEÇİMİ ============ -->
+      <section id="tema" class="scroll-mt-20">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="font-mono text-accent text-sm">15</span>
+          <h2 class="text-xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Tema Seçimi</h2>
+        </div>
+        <div class="bg-surface-1 border border-border-subtle rounded p-6">
+          <p class="text-sm text-text-secondary mb-4">
+            Üst navigasyon çubuğunun sağındaki daire ikona tıklayarak <span class="font-mono text-text-primary">Sistem / Açık / Koyu / Dracula / Monokai / Nord / Solarized / Gruvbox / One Dark / Tokyo Night / Matrix</span>
+            temaları arasında geçiş yapabilirsin (toplam 11 seçenek). Seçimin tarayıcında hatırlanır; "Sistem" işletim sisteminin açık/koyu tercihini takip eder.
+          </p>
+          <div class="flex flex-wrap gap-2 font-mono text-xs">
+            <% ["Sistem", "Açık", "Koyu", "Dracula", "Monokai", "Nord", "Solarized", "Gruvbox", "One Dark", "Tokyo Night", "Matrix"].each do |mode| %>
+              <span class="border border-border-subtle bg-surface-2 text-text-muted px-3 py-2 rounded"><%= mode %></span>
+            <% end %>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>

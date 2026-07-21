@@ -1,0 +1,63 @@
+<div class="min-h-screen bg-surface-0 text-text-primary px-8 py-8 font-sans">
+  <div class="max-w-3xl mx-auto">
+    <div class="mb-8 flex items-center justify-between border-b border-border-subtle pb-4">
+      <h1 class="text-2xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Post Detayı</h1>
+      <%= link_to "← Akışa dön", posts_path, class: "text-xs font-mono text-text-muted hover:text-accent transition-colors" %>
+    </div>
+
+    <div class="border border-border-subtle bg-surface-1 rounded-xl p-4 shadow-sm dark:shadow-none mb-6">
+      <div class="flex items-center gap-3 mb-3">
+        <%= link_to public_profile_path(@post.user.id), class: "shrink-0" do %>
+          <% if @post.user.avatar_url.present? %>
+            <%= image_tag @post.user.avatar_url, alt: @post.user.name,
+                  class: "w-10 h-10 rounded-full ring-1 ring-border-subtle object-cover hover:ring-accent transition-all" %>
+          <% else %>
+            <span class="w-10 h-10 rounded-full bg-surface-2 border border-border-subtle inline-flex items-center justify-center text-sm font-mono text-accent"><%= @post.user.name.to_s.first&.upcase %></span>
+          <% end %>
+        <% end %>
+        <div class="min-w-0">
+          <%= link_to @post.user.name, public_profile_path(@post.user.id),
+                class: "block font-semibold text-sm text-text-primary hover:text-accent transition-colors" %>
+          <span class="text-text-muted text-[11px] font-mono"><%= time_ago_in_words(@post.created_at) %> önce</span>
+        </div>
+      </div>
+
+      <% if @post.title.present? %>
+        <h2 class="text-lg font-bold text-text-primary mb-2"><%= @post.title %></h2>
+      <% end %>
+
+      <p class="text-text-secondary font-mono text-sm leading-relaxed mb-3 whitespace-pre-line"><%= @post.content %></p>
+
+      <% if @post.skills.any? %>
+        <div class="flex flex-wrap gap-2">
+          <% @post.skills.each do |skill| %>
+            <%= link_to "##{skill.name}", tag_posts_path(tag: skill.name), class: "text-[10px] font-mono border border-accent/30 bg-accent/10 text-accent px-2 py-0.5 hover:bg-accent/20 transition-colors" %>
+          <% end %>
+        </div>
+      <% end %>
+
+      <%= render "posts/interactions", post: @post %>
+    </div>
+
+    <h3 class="text-xs font-mono text-accent mb-3 tracking-widest">> YORUMLAR (<%= @post.comments.size %>)</h3>
+
+    <% if current_user %>
+      <%= form_with url: comments_path, method: :post, class: "flex gap-2 mb-4" do |f| %>
+        <%= hidden_field_tag :post_id, @post.id %>
+        <%= f.text_field :content, placeholder: "Bir yorum yaz...", required: true, autocomplete: "off",
+              class: "flex-1 min-w-0 bg-surface-2 dark:bg-terminal-bg border border-border-subtle rounded p-2 text-xs font-mono text-text-primary focus:border-accent focus:outline-none transition-colors" %>
+        <%= f.submit "Gönder", class: "bg-accent/10 text-accent border border-accent/30 px-4 py-2 rounded text-xs font-mono cursor-pointer hover:bg-accent/20 transition-all" %>
+      <% end %>
+    <% end %>
+
+    <div class="flex flex-col gap-3">
+      <% if @comments.any? %>
+        <% @comments.each do |comment| %>
+          <%= render "comments/comment", comment: comment %>
+        <% end %>
+      <% else %>
+        <div class="text-text-muted font-mono text-xs italic">Henüz yorum yok.</div>
+      <% end %>
+    </div>
+  </div>
+</div>

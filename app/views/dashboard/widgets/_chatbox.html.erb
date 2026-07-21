@@ -1,0 +1,11 @@
+<%# Widget: chatbox — Global Terminal Chat. Header (mac/windows skin) + chat paneli. %>
+<%# Controller ivar'larını doğrudan kullanır: @chat_rooms, @chat_room, @messages, @new_message. %>
+<%# local `widget` yoksayılır. Baslik cubugu + koyu terminal govdesi artik paylasilan
+    "dashboard/terminal_chrome" partial'inden gelir (rooms/show.html.erb ile ORTAK). %>
+<!-- SAĞ PANEL: Terminal Chat -->
+<%= render layout: "dashboard/terminal_chrome", locals: { title: "Global_Terminal.exe" } do %>
+  <%= turbo_frame_tag "chat_panel", class: "flex flex-col h-full min-h-0" do %>
+    <%= render "dashboard/room_tabs", chat_rooms: @chat_rooms, active_room: @chat_room %>
+    <%= render "dashboard/chat_panel", chat_room: @chat_room, messages: @messages, new_message: @new_message, panel_flexible: true %>
+  <% end %>
+<% end %>

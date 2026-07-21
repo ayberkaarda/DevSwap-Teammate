@@ -1,0 +1,422 @@
+@import 'tailwindcss';
+
+:root {
+  /* Single source of truth for the top nav bar height. Every place that
+     needs to clear the nav (layout wrapper, sticky offsets, etc.) must
+     reference var(--nav-h) instead of hardcoding a value. */
+  --nav-h: 3.5rem;
+
+
+
+  /* ---- Adım 2: Token layer (light mode / default values) ---- */
+  --surface-0: #fafafa;      /* page background (zinc-50) */
+
+  /* ---- Adım 2: Token layer (light mode / default values) ---- */
+
+  --surface-0: #f3f4f6;      /* page background (gray-100) */
+
+
+  --surface-0: #fafafa;      /* page background (zinc-50) */
+
+  --surface-1: #ffffff;      /* card/panel background (white) */
+  --surface-2: #f9fafb;      /* nested/input background (gray-50) */
+  --border-subtle: #e5e7eb;  /* gray-200 */
+
+  --text-primary: #111827;   /* gray-900 */
+  --text-secondary: #374151; /* gray-700 */
+  --text-muted: #6b7280;     /* gray-500 */
+
+
+
+  --accent: #047857;         /* emerald-700 (AA text contrast) */
+  --accent-fg: #ffffff;
+
+  --terminal-bg: #ececea;
+  --terminal-text: #1f2328;
+  --prompt-color: #065f46;
+
+
+  --accent: #059669;         /* emerald-600 */
+
+  --accent: #047857;         /* emerald-700 (AA text contrast) */
+
+  --accent-fg: #ffffff;
+
+  --terminal-bg: #090B10;    /* always-dark terminal surface, same both themes */
+  --terminal-text: #d1d5db;  /* gray-300, terminal body text */
+  --prompt-color: #10b981;   /* emerald-500, ❯ / prompt accents */
+
+
+
+  --status-ok: #059669;      /* emerald-600 */
+  --status-warn: #f59e0b;    /* amber-500 */
+  --status-err: #e11d48;     /* rose-600 */
+
+  --chart-1: #2a78d6;
+  --chart-2: #3987e5;
+  --chart-3: #6da7ec;
+  --chart-4: #9ec5f4;
+
+  /* Supplementary (non-mandatory) tokens: extra elevation tiers within the
+     always-dark "terminal" surfaces used across dashboard/profiles, and a
+     shared border color for those terminal panels. Same value both themes
+     (Rule A), kept separate from --terminal-bg so the existing 3-tier
+     elevation look (outer / panel / header) is preserved exactly. */
+
+
+
+  --terminal-bg-2: #e2e2de;
+  --terminal-bg-3: #d8d8d3;
+  --terminal-border: #c9c9c3;
+  --terminal-text-muted: #52524d;
+  --terminal-accent-2: #4338ca;
+
+
+  --terminal-bg-2: #050608;
+  --terminal-bg-3: #121620;
+  --terminal-border: #1f2937; /* gray-800 */
+
+}
+
+/* Tema değişimi sırasında (özellikle reflow anında) <body>'nin arka planı
+   viewport'u tam kaplamayabiliyor; bu durumda stilsiz <html> arka planı
+   sağ/sol kenarlarda siyah çubuk olarak görünüyordu. --surface-0 zaten
+   [data-theme] seçicileriyle reaktif olduğu için burada tek bir kural
+   yeterli — tüm temalarda otomatik takip eder. */
+html {
+  background-color: var(--surface-0);
+}
+
+.dark, [data-theme="dark"] {
+  --surface-0: #0a0b0f;
+  --surface-1: #12151c;
+  --surface-2: #1b1f29;
+  --border-subtle: #1f2937;  /* gray-800 */
+
+  --text-primary: #d1d5db;   /* gray-300 */
+  --text-secondary: #9ca3af; /* gray-400 */
+  --text-muted: #9ca3af;     /* gray-400 (was gray-500, failed AA on new surface-1) */
+
+  --accent: #34d399;         /* emerald-400 */
+  --accent-fg: #ffffff;
+
+  --terminal-bg: #090B10;
+  --terminal-text: #d1d5db;
+  --prompt-color: #10b981;
+
+  --status-ok: #34d399;      /* emerald-400 */
+  --status-warn: #fbbf24;    /* amber-400 */
+  --status-err: #fb7185;     /* rose-400 */
+
+  --chart-1: #2a78d6;
+  --chart-2: #3987e5;
+  --chart-3: #6da7ec;
+  --chart-4: #9ec5f4;
+
+  --terminal-bg-2: #050608;
+  --terminal-bg-3: #121620;
+  --terminal-border: #1f2937;
+  --terminal-text-muted: #9ca3af;
+  --terminal-accent-2: #818cf8;
+}
+
+[data-theme="dracula"] {
+  --surface-0: #1e1f29;
+  --surface-1: #282a36;
+  --surface-2: #343746;
+  --border-subtle: #44475a;
+
+  --text-primary: #f8f8f2;
+  --text-secondary: #d6d6e2;
+  --text-muted: #6272a4;
+
+  --accent: #bd93f9;         /* dracula purple */
+  --accent-fg: #282a36;
+
+  --terminal-bg: #282a36;
+  --terminal-text: #f8f8f2;
+  --prompt-color: #50fa7b;   /* dracula green */
+
+  --status-ok: #50fa7b;      /* dracula green */
+  --status-warn: #f1fa8c;    /* dracula yellow */
+  --status-err: #ff5555;     /* dracula red */
+
+  --chart-1: #bd93f9;
+  --chart-2: #ff79c6;
+  --chart-3: #8be9fd;
+  --chart-4: #50fa7b;
+
+  --terminal-bg-2: #21222c;
+  --terminal-bg-3: #191a21;
+  --terminal-border: #44475a;
+  --terminal-text-muted: #6272a4;
+  --terminal-accent-2: #ff79c6;
+}
+
+[data-theme="monokai"] {
+  --surface-0: #1e1f1c;
+  --surface-1: #272822;
+  --surface-2: #2f3029;
+  --border-subtle: #49483e;
+
+  --text-primary: #f8f8f2;
+  --text-secondary: #cfcfc2;
+  --text-muted: #90886f;
+
+  --accent: #fd971f;         /* monokai orange */
+  --accent-fg: #272822;
+
+  --terminal-bg: #272822;
+  --terminal-text: #f8f8f2;
+  --prompt-color: #a6e22e;   /* monokai green */
+
+  --status-ok: #a6e22e;      /* monokai green */
+  --status-warn: #e6db74;    /* monokai yellow */
+  --status-err: #f92672;     /* monokai pink/red */
+
+  --chart-1: #66d9ef;
+  --chart-2: #ae81ff;
+  --chart-3: #fd971f;
+  --chart-4: #a6e22e;
+
+  --terminal-bg-2: #1e1f1c;
+  --terminal-bg-3: #232420;
+  --terminal-border: #49483e;
+  --terminal-text-muted: #90886f;
+  --terminal-accent-2: #ae81ff;
+}
+
+[data-theme="nord"] {
+  --surface-0: #242933;
+  --surface-1: #2e3440;
+  --surface-2: #3b4252;
+  --border-subtle: #434c5e;
+
+  --text-primary: #eceff4;
+  --text-secondary: #d8dee9;
+  --text-muted: #81a1c1;
+
+  --accent: #88c0d0;         /* nord frost blue */
+  --accent-fg: #2e3440;
+
+  --terminal-bg: #2e3440;
+  --terminal-text: #eceff4;
+  --prompt-color: #a3be8c;   /* nord green */
+
+  --status-ok: #a3be8c;      /* nord green */
+  --status-warn: #ebcb8b;    /* nord yellow */
+  --status-err: #bf616a;     /* nord red */
+
+  --chart-1: #88c0d0;
+  --chart-2: #81a1c1;
+  --chart-3: #5e81ac;
+  --chart-4: #8fbcbb;
+
+  --terminal-bg-2: #272c36;
+  --terminal-bg-3: #232830;
+  --terminal-border: #434c5e;
+  --terminal-text-muted: #81a1c1;
+  --terminal-accent-2: #b48ead;
+}
+
+[data-theme="solarized"] {
+  --surface-0: #00212b;      /* darker than base03 */
+  --surface-1: #002b36;      /* base03 */
+  --surface-2: #073642;      /* base02 */
+  --border-subtle: #0a4451;  /* step lighter than base02 */
+
+  --text-primary: #93a1a1;   /* base1 */
+  --text-secondary: #839496; /* base0 */
+  --text-muted: #586e75;     /* base01 */
+
+  --accent: #268bd2;         /* solarized blue */
+  --accent-fg: #002b36;
+
+  --terminal-bg: #002b36;    /* base03 */
+  --terminal-text: #839496;  /* base0 */
+  --prompt-color: #268bd2;   /* solarized blue */
+
+  --status-ok: #859900;      /* solarized green */
+  --status-warn: #b58900;    /* solarized yellow */
+  --status-err: #dc322f;     /* solarized red */
+
+  --chart-1: #268bd2;        /* blue */
+  --chart-2: #2aa198;        /* cyan */
+  --chart-3: #b58900;        /* yellow */
+  --chart-4: #cb4b16;        /* orange */
+
+  --terminal-bg-2: #073642;  /* base02 */
+  --terminal-bg-3: #00212b;  /* deepest layer */
+  --terminal-border: #0a4451;
+  --terminal-text-muted: #586e75; /* base01 */
+  --terminal-accent-2: #6c71c4;   /* violet */
+}
+
+[data-theme="gruvbox"] {
+  --surface-0: #282828;      /* bg0 */
+  --surface-1: #3c3836;      /* bg1 */
+  --surface-2: #504945;      /* bg2 */
+  --border-subtle: #665c54;  /* bg3 */
+
+  --text-primary: #ebdbb2;   /* fg1 */
+  --text-secondary: #d5c4a1; /* fg2 */
+  --text-muted: #928374;     /* gray */
+
+  --accent: #fe8019;         /* gruvbox orange (bright) */
+  --accent-fg: #282828;
+
+  --terminal-bg: #282828;    /* bg0 */
+  --terminal-text: #ebdbb2;  /* fg1 */
+  --prompt-color: #fe8019;   /* gruvbox orange (bright) */
+
+  --status-ok: #b8bb26;      /* gruvbox green (bright) */
+  --status-warn: #fabd2f;    /* gruvbox yellow (bright) */
+  --status-err: #fb4934;     /* gruvbox red (bright) */
+
+  --chart-1: #fe8019;        /* orange (bright) */
+  --chart-2: #8ec07c;        /* aqua (bright) */
+  --chart-3: #fabd2f;        /* yellow (bright) */
+  --chart-4: #d3869b;        /* purple (bright) */
+
+  --terminal-bg-2: #3c3836;  /* bg1 */
+  --terminal-bg-3: #1d2021;  /* darker than bg0 */
+  --terminal-border: #665c54; /* bg3 */
+  --terminal-text-muted: #a89984; /* fg4 */
+  --terminal-accent-2: #8ec07c;   /* aqua (bright) */
+}
+
+[data-theme="onedark"] {
+  --surface-0: #282c34;      /* one dark background */
+  --surface-1: #2c313a;      /* lighter panel */
+  --surface-2: #3b4048;      /* raised panel */
+  --border-subtle: #4b5263;  /* gutter grey */
+
+  --text-primary: #abb2bf;   /* foreground */
+  --text-secondary: #dcdfe4; /* white */
+  --text-muted: #5c6370;     /* comment grey */
+
+  --accent: #61afef;         /* one dark blue */
+  --accent-fg: #282c34;
+
+  --terminal-bg: #282c34;    /* background */
+  --terminal-text: #abb2bf;  /* foreground */
+  --prompt-color: #61afef;   /* one dark blue */
+
+  --status-ok: #98c379;      /* one dark green */
+  --status-warn: #e5c07b;    /* one dark yellow */
+  --status-err: #e06c75;     /* one dark red */
+
+  --chart-1: #61afef;        /* blue */
+  --chart-2: #c678dd;        /* purple */
+  --chart-3: #98c379;        /* green */
+  --chart-4: #56b6c2;        /* cyan */
+
+  --terminal-bg-2: #2c313a;
+  --terminal-bg-3: #21252b;  /* darker step */
+  --terminal-border: #4b5263; /* gutter grey */
+  --terminal-text-muted: #5c6370; /* comment grey */
+  --terminal-accent-2: #c678dd;   /* purple */
+}
+
+[data-theme="tokyonight"] {
+  --surface-0: #1a1b26;      /* bg */
+  --surface-1: #292e42;      /* bg highlight */
+  --surface-2: #363b54;      /* step lighter */
+  --border-subtle: #414868;  /* terminal black */
+
+  --text-primary: #c0caf5;   /* fg */
+  --text-secondary: #a9b1d6; /* dimmer blue-white */
+  --text-muted: #565f89;     /* comment */
+
+  --accent: #7aa2f7;         /* tokyo night blue */
+  --accent-fg: #16161e;
+
+  --terminal-bg: #16161e;    /* bg dark */
+  --terminal-text: #c0caf5;  /* fg */
+  --prompt-color: #7aa2f7;   /* tokyo night blue */
+
+  --status-ok: #9ece6a;      /* tokyo night green */
+  --status-warn: #e0af68;    /* tokyo night yellow */
+  --status-err: #f7768e;     /* tokyo night red */
+
+  --chart-1: #7aa2f7;        /* blue */
+  --chart-2: #bb9af7;        /* purple */
+  --chart-3: #7dcfff;        /* cyan */
+  --chart-4: #9ece6a;        /* green */
+
+  --terminal-bg-2: #1a1b26;  /* bg */
+  --terminal-bg-3: #292e42;  /* bg highlight */
+  --terminal-border: #414868; /* terminal black */
+  --terminal-text-muted: #565f89; /* comment */
+  --terminal-accent-2: #ff007c;   /* magenta */
+}
+
+[data-theme="matrix"] {
+  --surface-0: #0d0208;      /* near-black bg */
+  --surface-1: #0a0e0a;      /* raised panel */
+  --surface-2: #0f140f;      /* step lighter */
+  --border-subtle: #003b00;  /* deep green */
+
+  --text-primary: #00ff41;   /* matrix green */
+  --text-secondary: #008f11;  /* mid-green dim */
+  --text-muted: #003b00;     /* deep green */
+
+  --accent: #00ff41;         /* matrix green */
+  --accent-fg: #0d0208;
+
+  --terminal-bg: #0d0208;    /* near-black */
+  --terminal-text: #00ff41;  /* matrix green */
+  --prompt-color: #00ff41;   /* matrix green */
+
+  --status-ok: #008f11;      /* mid-green */
+  --status-warn: #caff33;    /* amber-green */
+  --status-err: #ff2222;     /* red */
+
+  --chart-1: #00ff41;        /* bright green */
+  --chart-2: #008f11;        /* mid-green */
+  --chart-3: #39ff14;        /* neon green */
+  --chart-4: #00b82e;        /* dark green */
+
+  --terminal-bg-2: #000000;  /* deepest layer */
+  --terminal-bg-3: #0a0e0a;  /* green-tinted black */
+  --terminal-border: #003b00; /* deep green */
+  --terminal-text-muted: #008f11; /* mid-green */
+  --terminal-accent-2: #39ff14;   /* neon green */
+}
+
+@theme {
+  --color-surface-0: var(--surface-0);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-border-subtle: var(--border-subtle);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+
+  --color-terminal-bg: var(--terminal-bg);
+  --color-terminal-bg-2: var(--terminal-bg-2);
+  --color-terminal-bg-3: var(--terminal-bg-3);
+  --color-terminal-text: var(--terminal-text);
+  --color-terminal-border: var(--terminal-border);
+  --color-prompt-color: var(--prompt-color);
+  --color-terminal-text-muted: var(--terminal-text-muted);
+  --color-terminal-accent-2: var(--terminal-accent-2);
+
+  --color-status-ok: var(--status-ok);
+  --color-status-warn: var(--status-warn);
+  --color-status-err: var(--status-err);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+
+}
+
+:root[data-terminal-skin="windows"] [data-skin="mac"] { display: none; }
+:root:not([data-terminal-skin="windows"]) [data-skin="windows"] { display: none; }
+

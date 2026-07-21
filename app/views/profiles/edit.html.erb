@@ -1,0 +1,321 @@
+
+
+<div class="min-h-screen bg-surface-0 text-text-primary px-8 pb-8 font-sans">
+
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Üst Başlık -->
+    <div class="mb-8 flex justify-between items-end border-b border-border-subtle pb-4">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-text-primary dark:text-accent-fg">Kontrol Kulesi</h1>
+        <p class="text-text-muted mt-1 text-sm font-mono">/profile/edit — yetenek matrisini yapılandır</p>
+      </div>
+    </div>
+
+    <!-- Bento Grid Layout -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+
+      <!-- Sol Sütun: Temel Profil Formu (Span 4) -->
+      <div class="md:col-span-4 bg-surface-1 border border-border-subtle p-6 relative overflow-hidden group h-fit">
+        <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-emerald-500/50 to-indigo-500/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+        <h2 class="text-lg font-semibold text-text-primary mb-6 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-status-ok"></span> Kimlik Doğrulaması
+        </h2>
+
+        <% if @current_user.errors.any? %>
+          <div class="mb-4 border border-status-err/30 bg-status-err/10 text-status-err font-mono text-xs px-3 py-2" role="alert">
+            <p class="font-bold uppercase tracking-widest mb-1">[HATA] Profil güncellenemedi</p>
+            <ul class="list-disc list-inside space-y-0.5">
+              <% @current_user.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <%= form_with model: @current_user, url: profile_path, local: true, class: "space-y-4", multipart: true do |f| %>
+          <div>
+            <%= f.label :banner_image, "Kapak Fotoğrafı", class: "block text-xs uppercase tracking-wider text-text-muted mb-1 font-mono" %>
+            <% if @current_user.banner_image.attached? && @current_user.banner_image.blob.persisted? %>
+              <%= image_tag @current_user.banner_image, class: "w-full h-24 object-cover border border-border-subtle mb-2" %>
+            <% end %>
+            <%= f.file_field :banner_image, accept: "image/png,image/jpeg,image/webp", class: "w-full bg-surface-2 border border-border-subtle text-text-primary px-3 py-2 focus:outline-none focus:border-accent/50 transition font-mono text-sm" %>
+          </div>
+
+          <div>
+            <%= f.label :name, "Geliştirici Adı", class: "block text-xs uppercase tracking-wider text-text-muted mb-1 font-mono" %>
+            <%= f.text_field :name, class: "w-full bg-surface-2 border border-border-subtle text-text-primary px-3 py-2 focus:outline-none focus:border-accent/50 transition font-mono text-sm" %>
+          </div>
+
+          <div>
+            <%= f.label :role, "Profesyonel Unvan", class: "block text-xs uppercase tracking-wider text-text-muted mb-1 font-mono" %>
+            <%= f.text_field :role, placeholder: "Örn: Frontend Web Developer", class: "w-full bg-surface-2 border border-border-subtle text-text-primary px-3 py-2 focus:outline-none focus:border-accent/50 transition font-mono text-sm" %>
+          </div>
+
+          <div>
+            <%= f.label :bio, "Biyografi", class: "block text-xs uppercase tracking-wider text-text-muted mb-1 font-mono" %>
+            <%= f.text_area :bio, rows: 4, class: "w-full bg-surface-2 border border-border-subtle text-text-primary px-3 py-2 focus:outline-none focus:border-accent/50 transition text-sm" %>
+          </div>
+
+          <div>
+            <%= f.label :teaching_format, "Öğretim Formatı", class: "block text-xs uppercase tracking-wider text-text-muted mb-1 font-mono" %>
+            <%= f.select :teaching_format, options_for_select([["Belirtilmedi", nil], ["Birebir", "one_on_one"], ["Grup", "group"], ["Farketmez", "either"]], @current_user.teaching_format), {}, class: "w-full bg-surface-2 border border-border-subtle text-text-primary px-3 py-2 focus:outline-none focus:border-accent/50 transition font-mono text-sm" %>
+          </div>
+
+          <div>
+            <%= f.label :availability_note, "Müsaitlik Notu", class: "block text-xs uppercase tracking-wider text-text-muted mb-1 font-mono" %>
+            <%= f.text_field :availability_note, placeholder: "Örn: hafta içi akşamları", value: @current_user.availability_note, class: "w-full bg-surface-2 border border-border-subtle text-text-primary px-3 py-2 focus:outline-none focus:border-accent/50 transition font-mono text-sm" %>
+          </div>
+
+          <div class="pt-4">
+            <%= f.submit "Matrisi Güncelle", class: "w-full bg-accent/10 hover:bg-accent/20 text-accent border border-accent/30 py-2 text-sm font-bold uppercase tracking-wider cursor-pointer transition" %>
+          </div>
+        <% end %>
+
+        <% if @current_user.banner_image.attached? && @current_user.banner_image.blob.persisted? %>
+          <%= button_to "Kapak Fotoğrafını Kaldır", remove_profile_banner_path, method: :delete, class: "mt-2 w-full text-xs bg-surface-2 border border-status-err/30 text-status-err hover:bg-status-err/10 py-2 font-mono cursor-pointer transition" %>
+        <% end %>
+
+        <% if current_user.github_repositories.any? %>
+          <div class="mt-6 border-t border-border-subtle pt-4">
+            <h3 class="text-xs font-mono text-accent tracking-widest mb-3">&gt; GITHUB_REPOLARI (profilde göster)</h3>
+            <% current_user.github_repositories.order(stargazers_count: :desc).each do |repo| %>
+              <label class="flex items-center gap-2 text-xs font-mono py-1 text-text-secondary">
+                <input type="checkbox"
+                       class="accent-accent"
+                       data-repo-id="<%= repo.id %>"
+                       <%= "checked" if repo.visible_on_profile %>
+                       onchange="fetch('/github_repositories/' + this.dataset.repoId, { method: 'PATCH', headers: { 'X-CSRF-Token': document.querySelector('meta[name=csrf-token]').content, 'Content-Type': 'application/json' }, body: JSON.stringify({ visible_on_profile: this.checked }) })" />
+                <span class="text-text-primary"><%= repo.name %></span>
+                <span class="text-text-muted">(<%= repo.primary_language %>, ★<%= repo.stargazers_count %>)</span>
+              </label>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="mt-6 border-t border-border-subtle pt-4">
+            <h3 class="text-xs font-mono text-accent tracking-widest mb-3">&gt; GITHUB_REPOLARI (profilde göster)</h3>
+            <div class="border border-accent/30 bg-accent/10 text-accent font-mono text-xs px-3 py-2">
+              <% if current_user.github_username.blank? %>
+                Henüz taranmış bir GitHub reposu yok. GitHub hesabını bağladıktan sonra otomatik olarak taranacak.
+              <% else %>
+                Henüz taranmış bir GitHub reposu yok. Tarama otomatik olarak arka planda çalışacak, birazdan burada görünecek.
+              <% end %>
+            </div>
+            <% if current_user.github_username.blank? %>
+              <%= button_to "GitHub Hesabını Bağla", "/auth/github", data: { turbo: false }, method: :post, class: "mt-2 w-full text-xs bg-surface-2 border border-accent/30 text-accent hover:bg-accent/10 py-2 font-mono cursor-pointer transition" %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Sağ Sütun: Yetenek Matrisi (Span 8) -->
+      <div class="md:col-span-8 flex flex-col gap-6">
+
+        <!-- Autocomplete oneri listesi: hem teaching hem learning hizli-ekle inputlari kullanir -->
+        <datalist id="skill-suggestions">
+          <% Skill.order(:name).pluck(:name).each do |name| %>
+            <option value="<%= name %>">
+          <% end %>
+        </datalist>
+
+        <!-- Öğrettiği Yetenekler (Emerald) -->
+        <div class="bg-surface-1 border border-border-subtle p-6">
+          <h3 class="text-accent text-sm font-bold uppercase tracking-widest mb-4 font-mono">System.out.println("Öğretebileceklerim");</h3>
+          <div class="flex flex-wrap gap-3 mb-5">
+            <% @teaching_skills.each do |us| %>
+              <div class="flex flex-col">
+                <div class="flex items-center gap-2 bg-accent/10 border border-accent/30 px-3 py-1.5 rounded-sm">
+                  <span class="text-accent text-sm"><%= us.skill.name %></span>
+                  <%= button_to "×", user_skill_path(us), method: :delete, class: "text-accent hover:opacity-80 transition cursor-pointer font-bold" %>
+                </div>
+                <details name="skill-edit-accordion" class="mt-1">
+                  <summary class="text-[10px] text-text-muted cursor-pointer hover:text-accent font-mono">düzenle</summary>
+                  <%= form_with model: us, url: user_skill_path(us), method: :patch, data: { controller: "auto-submit" }, class: "flex flex-col gap-1 mt-1 pl-2 border-l border-border-subtle" do |f| %>
+                    <%= f.select :proficiency_level, options_for_select([["Belirtilmedi", nil], ["Başlangıç", "beginner"], ["Orta", "intermediate"], ["İleri", "advanced"], ["Uzman", "expert"]], us.proficiency_level), {}, data: { action: "change->auto-submit#submit" }, class: "bg-surface-2 border border-border-subtle text-text-primary text-[10px] font-mono px-1.5 py-1 rounded" %>
+                    <%= f.text_field :note, placeholder: "Kısa not (opsiyonel)", value: us.note, data: { action: "blur->auto-submit#submit" }, class: "bg-surface-2 border border-border-subtle text-text-primary text-[10px] font-mono px-1.5 py-1 rounded" %>
+                    <%= f.text_field :evidence_url, placeholder: "Kanıt linki (https://...)", value: us.evidence_url, data: { action: "blur->auto-submit#submit" }, class: "bg-surface-2 border border-border-subtle text-text-primary text-[10px] font-mono px-1.5 py-1 rounded" %>
+                    <%= f.submit "Kaydet", class: "bg-accent/10 text-accent border border-accent/30 text-[10px] px-2 py-1 rounded hover:bg-accent/20 w-fit cursor-pointer" %>
+                  <% end %>
+                </details>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Yeni Yetenek Ekleme Formu -->
+          <%= form_with url: user_skills_path, local: true, class: "flex items-center gap-2 border-t border-border-subtle pt-4" do |f| %>
+
+            <%= f.hidden_field :direction, value: "teaching" %>
+
+            <%= f.collection_select :skill_id, @available_skills - @current_user.skills, :id, :name, { prompt: "Sistemden Yetenek Seç..." }, class: "bg-surface-2 border border-border-subtle text-text-muted text-sm px-3 py-1.5 focus:outline-none focus:border-accent/50 font-mono" %>
+            <%= f.submit "+ Matrise Ekle", class: "text-xs bg-surface-2 border border-dashed border-accent/30 text-accent hover:text-accent hover:border-accent px-4 py-2 transition font-mono cursor-pointer" %>
+          <% end %>
+
+          <!-- Hızlı Ekle: Serbest Metin Autocomplete (teaching) -->
+          <%= form_with url: user_skills_path, method: :post, class: "flex items-center gap-2 mt-2" do |f| %>
+            <%= f.text_field :skill_name, list: "skill-suggestions", placeholder: "Yetenek/araç/uygulama yaz veya seç...", autocomplete: "off", class: "bg-surface-2 border border-border-subtle text-text-primary text-sm px-3 py-1.5 focus:outline-none focus:border-accent/50 font-mono flex-1" %>
+            <%= f.hidden_field :direction, value: "teaching" %>
+            <%= f.submit "Ekle", class: "hidden" %>
+          <% end %>
+        </div>
+
+        <!-- Öğrenmek İstediği Yetenekler (Indigo) -->
+        <div id="learning" class="bg-surface-1 border border-border-subtle p-6">
+
+          <h3 class="text-indigo-700 dark:text-indigo-300 text-sm font-bold uppercase tracking-widest mb-4 font-mono">await learnSkills();</h3>
+
+          <% if @learning_skills.empty? %>
+            <div class="mb-5 border border-indigo-500/30 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 font-mono text-xs px-3 py-2">
+              [UYARI] Hedef listesi boş — eşleşme motorunun senin için kimseyi bulabilmesi için en az bir tane gerekli.
+            </div>
+          <% else %>
+            <div class="flex flex-wrap gap-3 mb-5">
+              <% @learning_skills.each do |us| %>
+                <div class="flex flex-col">
+                  <div class="flex items-center gap-2 bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-600/30 dark:border-indigo-400/30 px-3 py-1.5 rounded-sm">
+                    <span class="text-indigo-700 dark:text-indigo-300 text-sm"><%= us.skill.name %></span>
+                    <%= button_to "×", user_skill_path(us), method: :delete, class: "text-indigo-700 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 transition cursor-pointer font-bold" %>
+                  </div>
+                  <details name="skill-edit-accordion" class="mt-1">
+                    <summary class="text-[10px] text-text-muted cursor-pointer hover:text-indigo-500 font-mono">düzenle</summary>
+                    <%= form_with model: us, url: user_skill_path(us), method: :patch, data: { controller: "auto-submit" }, class: "flex flex-col gap-1 mt-1 pl-2 border-l border-border-subtle" do |f| %>
+                      <%= f.select :proficiency_level, options_for_select([["Belirtilmedi", nil], ["Başlangıç", "beginner"], ["Orta", "intermediate"], ["İleri", "advanced"], ["Uzman", "expert"]], us.proficiency_level), {}, data: { action: "change->auto-submit#submit" }, class: "bg-surface-2 border border-border-subtle text-text-primary text-[10px] font-mono px-1.5 py-1 rounded" %>
+                      <%= f.text_field :note, placeholder: "Kısa not (opsiyonel)", value: us.note, data: { action: "blur->auto-submit#submit" }, class: "bg-surface-2 border border-border-subtle text-text-primary text-[10px] font-mono px-1.5 py-1 rounded" %>
+                      <%= f.text_field :evidence_url, placeholder: "Kanıt linki (https://...)", value: us.evidence_url, data: { action: "blur->auto-submit#submit" }, class: "bg-surface-2 border border-border-subtle text-text-primary text-[10px] font-mono px-1.5 py-1 rounded" %>
+                      <%= f.submit "Kaydet", class: "bg-accent/10 text-accent border border-accent/30 text-[10px] px-2 py-1 rounded hover:bg-accent/20 w-fit cursor-pointer" %>
+                    <% end %>
+                  </details>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+
+          <!-- Hızlı Ekle: Serbest Metin Autocomplete (learning) -->
+          <%= form_with url: user_skills_path, method: :post, class: "flex items-center gap-2 mb-4" do |f| %>
+            <%= f.text_field :skill_name, list: "skill-suggestions", placeholder: "Yetenek/araç/uygulama yaz veya seç...", autocomplete: "off", class: "bg-surface-2 border border-border-subtle text-text-primary text-sm px-3 py-1.5 focus:outline-none focus:border-indigo-500/50 font-mono flex-1" %>
+            <%= f.hidden_field :direction, value: "learning" %>
+            <%= f.submit "Ekle", class: "hidden" %>
+          <% end %>
+
+          <!-- Yeni Hedef Ekleme Formu (Checkbox Grid) -->
+          <% learning_pool = (@available_skills - @current_user.skills) %>
+          <% if learning_pool.empty? %>
+            <div class="border-t border-border-subtle pt-4 text-xs font-mono text-text-muted">
+              Tüm sistem yetenekleri zaten hedeflerinde.
+            </div>
+          <% else %>
+            <div class="border-t border-border-subtle pt-4">
+              <input type="text" id="learning-skill-filter" placeholder="Filtrele..." autocomplete="off"
+                     class="w-full mb-3 bg-surface-2 border border-border-subtle text-text-primary text-sm px-3 py-1.5 focus:outline-none focus:border-indigo-500/50 font-mono" />
+
+              <%= form_with url: user_skills_path, method: :post, id: "learning-skills-form" do %>
+                <%= hidden_field_tag :direction, "learning" %>
+
+                <% grouped = learning_pool.group_by(&:category) %>
+                <% category_labels = {
+                     "language" => "Diller",
+                     "frontend_framework" => "Frontend Framework'ler",
+                     "backend_framework" => "Backend Framework'ler",
+                     "database" => "Veritabanları & ORM'ler",
+                     "cloud_devops" => "Cloud & DevOps",
+                     "machine_learning" => "Machine Learning & Veri Bilimi",
+                     "game_development" => "Oyun Geliştirme",
+                     "os_sysadmin" => "İşletim Sistemi & Sistem Yönetimi",
+                     "testing_tools" => "Test & Araçlar"
+                   } %>
+                <% %w[language frontend_framework backend_framework database cloud_devops machine_learning game_development os_sysadmin testing_tools].each do |category| %>
+                  <% skills_in_category = grouped[category] %>
+                  <% next if skills_in_category.blank? %>
+                  <details class="mb-3" data-learning-skill-group open>
+                    <summary class="text-[10px] uppercase tracking-widest text-text-muted font-mono mb-2 cursor-pointer hover:text-indigo-500 transition"><%= category_labels[category] || category %> (<%= skills_in_category.size %>)</summary>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+                      <% skills_in_category.each do |skill| %>
+                        <label data-skill-name="<%= skill.name.downcase %>" class="flex items-center gap-2 bg-surface-2 border border-border-subtle px-2 py-1.5 text-xs font-mono text-text-secondary hover:border-indigo-500/50 cursor-pointer transition">
+                          <%= check_box_tag "skill_ids[]", skill.id, false, id: "learning_skill_#{skill.id}", class: "accent-indigo-500" %>
+                          <%= skill.name %>
+                        </label>
+                      <% end %>
+                    </div>
+                  </details>
+                <% end %>
+
+                <div class="pt-2">
+                  <%= submit_tag "Hedeflere Ekle", class: "text-xs bg-surface-2 border border-dashed border-indigo-600/30 dark:border-indigo-400/30 text-indigo-700 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 hover:border-indigo-500 px-4 py-2 transition font-mono cursor-pointer" %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+
+        </div>
+
+        <!-- Serbest Yetenek Enjeksiyon Modülü (Card 3) -->
+        <div class="mt-8 border-t border-border-subtle pt-6 transition-colors">
+          <h3 class="text-xs font-mono text-accent mb-4 tracking-widest">> SİSTEM_DONANIMLARI (Skills)</h3>
+
+          <%= form_with url: user_skills_path, method: :post, class: "flex gap-2 mb-6" do |form| %>
+            <%= form.text_field :skill_name, placeholder: "Örn: Rust, Ruby, Docker...", class: "flex-1 bg-surface-2 border border-border-subtle rounded p-2 text-xs font-mono text-text-primary focus:border-accent focus:outline-none transition-colors" %>
+            <%= form.submit "Enjekte Et", class: "bg-accent/10 text-accent border border-accent/30 px-4 py-2 rounded text-xs font-mono cursor-pointer hover:bg-accent/20 transition-all" %>
+          <% end %>
+
+          <div class="flex flex-wrap gap-2">
+            <% @current_user.user_skills.includes(:skill).each do |user_skill| %>
+              <div class="flex items-center gap-1 bg-surface-2 dark:bg-surface-1 border border-border-subtle px-3 py-1.5 rounded-full text-xs font-mono text-text-secondary shadow-sm dark:shadow-inner transition-colors">
+                <span class="text-accent">></span> <%= user_skill.skill.name %>
+
+                <%= button_to "×", user_skill_path(user_skill), method: :delete, class: "ml-2 font-bold text-status-err hover:opacity-80 cursor-pointer transition-colors" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Öğrenme Hedefi Filtre Scripti -->
+<script>
+  document.addEventListener("turbo:load", function() {
+    const filterInput = document.getElementById("learning-skill-filter");
+    if (!filterInput) return;
+
+    // Bilinen kisaltma/varyant haritasi (db/seeds/skill_aliases.rb ALIASES'in en
+    // yaygin alt kumesi). Kullanici "js" yazinca "javascript" de aransin.
+    const SKILL_ALIASES = {
+      "js": "javascript",
+      "ts": "typescript",
+      "k8s": "kubernetes",
+      "rails": "ruby on rails",
+      "ror": "ruby on rails",
+      "node": "node.js",
+      "nodejs": "node.js"
+    };
+
+    // Buyuk/kucuk harf + bosluk/tire/nokta farkina duyarsiz normalizasyon.
+    const normalize = (str) => (str || "").toLowerCase().replace(/[\s\-.]/g, "");
+
+    filterInput.addEventListener("input", function() {
+      const raw = this.value.trim().toLowerCase();
+      const query = normalize(raw);
+
+      // Yazilan metnin alias haritasindaki kanonik karsiligini da arama
+      // terimlerine ekle (hem yazilan hem cozumlenmis isimle esles).
+      const terms = [ query ];
+      const resolved = SKILL_ALIASES[raw] || SKILL_ALIASES[query];
+      if (resolved) terms.push(normalize(resolved));
+
+      const labels = document.querySelectorAll("#learning-skills-form label[data-skill-name]");
+
+      labels.forEach(function(label) {
+        const skillNorm = normalize(label.dataset.skillName);
+        const matches = query === "" || terms.some((term) => term !== "" && skillNorm.includes(term));
+        label.classList.toggle("hidden", !matches);
+      });
+
+      document.querySelectorAll("[data-learning-skill-group]").forEach(function(group) {
+        const visibleLabels = group.querySelectorAll("label[data-skill-name]:not(.hidden)");
+        group.classList.toggle("hidden", visibleLabels.length === 0);
+      });
+    });
+  });
+</script>

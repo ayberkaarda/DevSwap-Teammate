@@ -1,0 +1,52 @@
+<%# teaching_skills: profile_user'ın öğretebileceği yetenekler (relation). %>
+<% teaching_skills = profile_user.user_skills.where(direction: "teaching").includes(:skill).order(Arel.sql("weight DESC NULLS LAST")) %>
+<div class="h-full bg-surface-1 border border-border-subtle p-6 overflow-auto"
+     style="font-size: calc(1em * var(--widget-font-scale, 1));">
+  <h3 class="text-accent text-sm font-bold uppercase tracking-widest mb-4 font-mono">System.out.println("Öğretebilecekleri");</h3>
+  <% if teaching_skills.empty? %>
+    <p class="text-xs font-mono text-text-muted">[SYS] Öğretebileceği bir yetenek tanımlanmamış.</p>
+  <% else %>
+    <div class="flex flex-wrap gap-3">
+      <% teaching_skills.each do |us| %>
+        <div class="flex flex-col">
+          <div class="flex items-center gap-2 bg-accent/10 border border-accent/30 px-3 py-1.5 rounded-sm">
+            <span class="text-accent text-sm"><%= us.skill.name %></span>
+            <% if us.respond_to?(:proficiency_level) && us.proficiency_level.present? %>
+              <span class="text-[9px] font-mono uppercase tracking-widest text-accent/80 border border-accent/30 px-1 py-0.5 rounded">
+                <%= { "beginner" => "Başlangıç", "intermediate" => "Orta", "advanced" => "İleri", "expert" => "Uzman" }[us.proficiency_level] || us.proficiency_level %>
+              </span>
+            <% end %>
+            <% if us.respond_to?(:evidence_url) && us.evidence_url.present? %>
+              <%= link_to "🔗", safe_url(us.evidence_url), target: "_blank", rel: "noopener noreferrer", class: "text-[10px] text-accent hover:opacity-80", title: "Kanıt linki" %>
+            <% end %>
+          </div>
+          <% if us.respond_to?(:note) && us.note.present? %>
+            <p class="text-[10px] italic text-text-muted mt-0.5 max-w-[12rem] truncate" title="<%= us.note %>"><%= us.note %></p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <% if teaching_skills.any? %>
+      <div class="mt-5 flex flex-col gap-3">
+        <% teaching_skills.each do |us| %>
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-[10px] font-mono text-text-muted uppercase tracking-widest"><%= us.skill.name %></span>
+              <% if us.weight %>
+                <span class="text-[10px] font-mono text-text-secondary" style="font-variant-numeric: tabular-nums;">%<%= (us.weight * 100).round %></span>
+              <% end %>
+            </div>
+            <div class="rounded-full overflow-hidden" style="height: 6px; background-color: var(--border-subtle);">
+              <% if us.weight %>
+                <div class="h-full rounded-full" style="width: <%= (us.weight * 100).round(1) %>%; background-color: var(--chart-1);"></div>
+              <% else %>
+                <div class="h-full rounded-full" style="width: 6%; background-color: var(--chart-1);"></div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

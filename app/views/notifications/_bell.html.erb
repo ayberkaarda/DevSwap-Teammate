@@ -1,0 +1,55 @@
+<% notifications = current_user.post_notifications.active.includes(:post, :skill).order(created_at: :desc).limit(10) %>
+<% digests = current_user.match_digests.active.order(created_at: :desc).limit(5) %>
+<% unseen_count = current_user.post_notifications.active.unseen.count + current_user.match_digests.active.unseen.count %>
+<details class="relative font-mono" data-controller="notifications" data-notifications-mark-seen-url-value="<%= mark_seen_notifications_path %>" data-action="toggle->notifications#markSeen">
+  <summary class="list-none cursor-pointer flex items-center gap-1.5 border border-border-subtle bg-surface-1 hover:border-accent/50 text-text-secondary px-3 py-1.5 rounded text-xs transition-colors select-none">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+    <span class="text-accent">bildirim</span>
+    <% if unseen_count.positive? %>
+      <span data-notifications-target="badge" class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-white text-[10px] font-bold"><%= unseen_count %></span>
+    <% end %>
+  </summary>
+
+  <div class="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto z-50 bg-surface-1 border border-border-subtle rounded shadow-2xl divide-y divide-border-subtle">
+    <% if notifications.empty? && digests.empty? %>
+      <p class="p-3 text-xs text-text-muted italic">Yeni bildirim yok.</p>
+    <% else %>
+      <% digests.each do |digest| %>
+        <% matched = digest.matched_users.to_a %>
+        <% next if matched.empty? %>
+        <div class="p-3 text-xs">
+          <p class="text-text-secondary leading-relaxed">
+            Bu hafta seninle eşleşebilecek <span class="text-accent font-bold"><%= matched.size %></span> kişi:
+            <% matched.each_with_index do |u, i| %><%= link_to u.name, public_profile_path(u), class: "text-accent hover:underline" %><%= ", " unless i == matched.size - 1 %><% end %>
+          </p>
+        </div>
+      <% end %>
+      <% notifications.each do |notification| %>
+        <% post = notification.post %>
+        <div class="p-3 text-xs">
+          <p class="text-text-secondary leading-relaxed">
+            <span class="text-accent font-bold"><%= post.user.name %></span>
+            bir post yayınladı:
+            <% if notification.skill %>
+              <span class="text-accent">> <%= notification.skill.name %></span> ilgini çekebilir
+            <% else %>
+              ilgini çekebilir
+            <% end %>
+          </p>
+          <p class="text-text-muted mt-1 italic"><%= truncate(post.content, length: 60) %></p>
+          <div class="flex gap-2 mt-2">
+            <%= button_to "İlgileniyorum", claim_notification_path(notification), method: :patch,
+                  class: "flex-1 bg-accent/10 text-accent border border-accent/30 px-2 py-1 rounded text-[10px] hover:bg-accent/20 transition-colors cursor-pointer" %>
+            <%= button_to "Kapat", dismiss_notification_path(notification), method: :patch,
+                  class: "flex-1 bg-surface-2 text-text-muted border border-border-subtle px-2 py-1 rounded text-[10px] hover:text-text-secondary transition-colors cursor-pointer" %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+
+    <div class="p-2 sticky bottom-0 bg-surface-1 border-t border-border-subtle">
+      <%= link_to "Tüm bildirimleri gör", notifications_path,
+            class: "block text-center text-[11px] text-accent hover:underline py-1" %>
+    </div>
+  </div>
+</details>

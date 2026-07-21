@@ -1,0 +1,18 @@
+<div class="p-4">
+  <h3 class="text-xs font-mono text-accent mb-3 tracking-widest">&gt; KUYRUK İŞLERİ: <%= status.to_s.upcase %> (<%= jobs.size %>)</h3>
+  <% if jobs.any? %>
+    <ul class="flex flex-col gap-2">
+      <% jobs.each do |job| %>
+        <li class="rounded p-2 bg-surface-2 dark:bg-terminal-bg-3 border border-border-subtle">
+          <div class="font-mono text-xs text-text-primary"><%= job[:class_name] %></div>
+          <div class="font-mono text-[11px] text-text-secondary">queue: <%= job[:queue_name] %></div>
+          <% if job[:error_message].present? %>
+            <div class="font-mono text-[11px] text-status-err mt-1 break-words"><%= job[:error_message] %></div>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-text-muted font-mono text-xs italic">Bu durumda iş bulunmuyor.</p>
+  <% end %>
+</div>

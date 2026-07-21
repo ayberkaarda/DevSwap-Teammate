@@ -1,0 +1,177 @@
+<meta name="current-user" content="<%= @current_user.name %>">
+<meta name="omni-stats" content="<%= {
+  teaching: @current_user.user_skills.where(direction: "teaching").count,
+  learning: @current_user.user_skills.where(direction: "learning").count,
+  github_connected: @current_user.github_username.present?,
+  vector_teach: UserSkillVector.find_by(user: @current_user)&.embedding_teach.present?,
+  vector_learn: UserSkillVector.find_by(user: @current_user)&.embedding_learn.present?
+}.to_json %>">
+
+<%# chatbox widget'ının canlı mesaj akışı için ortak stream aboneliği. %>
+<%= turbo_stream_from "terminal_chat_channel" %>
+
+<%
+  # chatbox widget'ının GÖRÜNÜRLÜĞÜ minimal DM dock'unun (sayfa altındaki alternatif
+  # DM modu) sunucu-tarafı koşuludur: chatbox gizliyse dock render edilir. Bu koşul
+  # dashboard_grid_controller.js'in chatbox gizle/göster sonrası Turbo.visit(replace)
+  # ile yeniden değerlendirdiği durumdur.
+  chatbox_widget = @dashboard_widgets.find { |w| w.widget_type == "chatbox" }
+  chatbox_visible = chatbox_widget&.visible
+%>
+
+<div class="min-h-screen bg-surface-0 text-text-primary px-8 pb-8 font-sans">
+
+  <!-- Üst Bar -->
+  <div class="mb-8 flex justify-between items-end border-b border-border-subtle pb-4">
+    <div>
+      <h1 class="text-3xl font-bold tracking-tight text-text-primary dark:text-accent-fg">DevSwap P2P Ağı</h1>
+      <p class="text-text-muted mt-1 text-sm font-mono">Status: <span class="text-status-ok">Connected</span> | Node: <%= @current_user.name %></p>
+    </div>
+  </div>
+
+  <% if @learning_skills_empty %>
+    <div class="mb-6 flex items-center justify-between gap-4 border border-indigo-500/30 bg-indigo-500/10 px-4 py-3 font-mono text-xs">
+      <span class="text-indigo-700 dark:text-indigo-300">
+        [SYS] Öğrenmek istediğin bir şey yok — eşleşme motoru senin için kimseyi bulamıyor.
+      </span>
+      <a href="<%= edit_profile_path(anchor: "learning") %>" class="shrink-0 border border-indigo-500/40 bg-indigo-500/10 px-3 py-1.5 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-500/20 transition">
+        Hedef Ekle →
+      </a>
+    </div>
+  <% end %>
+
+  <% if @recently_scanned_skills.any? %>
+    <div class="mb-6 border border-accent/30 bg-accent/10 px-4 py-3 font-mono text-xs">
+      <div class="flex items-center justify-between gap-4 mb-2">
+        <span class="text-accent tracking-widest">> GITHUB_SCAN.detected()</span>
+        <% if @current_user.skills_last_scanned_at %>
+          <span class="text-text-muted"><%= time_ago_in_words(@current_user.skills_last_scanned_at) %> önce tarandı</span>
+        <% end %>
+      </div>
+      <div class="flex flex-wrap gap-2 mb-2">
+        <% @recently_scanned_skills.each do |us| %>
+          <span class="inline-flex items-center gap-1 bg-accent/10 border border-accent/30 text-accent px-2 py-1 rounded-sm">
+            <%= us.skill.name %><% if us.weight %> <span class="text-text-muted">%<%= (us.weight * 100).round %></span><% end %>
+          </span>
+        <% end %>
+      </div>
+      <a href="<%= edit_profile_path %>" class="text-accent hover:underline">Düzenlemek için Kontrol Kulesi'ne git →</a>
+    </div>
+  <% end %>
+
+  <%# ======================================================================
+      DASHBOARD WIDGET IZGARASI (Gridstack) — 12 kolonlu, sürüklenebilir/
+      yeniden boyutlandırılabilir widget grid'i. Bu HER ZAMAN kullanıcının
+      KENDİ dashboard'udur (profil aksine başkasınca görüntülenemez), dolayısıyla
+      edit araç çubuğu / edit chrome KOŞULSUZ render edilir. PATCH'ler
+      /dashboard_widgets/* uçlarına gider.
+      ====================================================================== %>
+  <div data-controller="dashboard-grid">
+
+    <div class="flex items-center justify-end gap-2 mb-4">
+      <button type="button"
+              data-action="dashboard-grid#toggleEdit"
+              data-dashboard-grid-target="editButton"
+              class="text-sm bg-accent/10 hover:bg-accent/20 border border-accent/30 text-accent font-mono px-4 py-2 rounded transition">
+        Düzenle
+      </button>
+      <%= button_to "Varsayılana Dön", reset_dashboard_widgets_path, method: :post,
+            class: "text-sm bg-surface-1 hover:bg-surface-2 border border-border-subtle text-text-secondary font-mono px-4 py-2 rounded transition",
+            data: { turbo_confirm: "Dashboard yerleşimini varsayılana sıfırlamak istediğine emin misin? Şu anki düzenin (widget konumları, boyutları, gizli widget'lar, yazı ölçeği) kaybolacak." } %>
+    </div>
+
+    <%# Gizli widget'lar: edit modunda görünür; "Göster" ile grid'e geri eklenir. %>
+    <div data-dashboard-grid-target="hiddenList"
+         class="hidden mb-4 p-3 bg-surface-1 border border-border-subtle rounded">
+      <span class="text-[10px] font-mono text-text-muted uppercase tracking-widest mr-2">Gizli:</span>
+      <% hidden_widgets = @dashboard_widgets.reject(&:visible) %>
+      <% if hidden_widgets.empty? %>
+        <span class="text-[10px] font-mono text-text-muted italic">Gizli widget yok.</span>
+      <% else %>
+        <% hidden_widgets.each do |widget| %>
+          <button type="button"
+                  data-action="dashboard-grid#showWidget"
+                  data-widget-id="<%= widget.id %>"
+                  data-widget-type="<%= widget.widget_type %>"
+                  class="text-[10px] font-mono border border-border-subtle bg-surface-2 text-text-secondary px-2 py-1 rounded hover:border-accent hover:text-accent transition-colors">
+            + <%= widget.widget_type %>
+          </button>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="grid-stack" data-dashboard-grid-target="grid">
+      <% @dashboard_widgets.select(&:visible).each do |widget| %>
+        <div class="grid-stack-item"
+             gs-id="<%= widget.id %>"
+             data-widget-type="<%= widget.widget_type %>"
+             gs-x="<%= widget.position_x %>"
+             gs-y="<%= widget.position_y %>"
+             gs-w="<%= widget.width %>"
+             gs-h="<%= widget.height %>">
+          <div class="grid-stack-item-content" style="--widget-font-scale: <%= widget.font_scale %>;">
+            <div class="widget-edit-chrome">
+              <button type="button" data-action="dashboard-grid#fontDown" title="Yazıyı küçült">A-</button>
+              <button type="button" data-action="dashboard-grid#fontUp" title="Yazıyı büyüt">A+</button>
+              <button type="button" data-action="dashboard-grid#hideWidget" title="Widget'ı gizle">Gizle</button>
+            </div>
+            <%= render "dashboard/widgets/#{widget.widget_type}", widget: widget %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<%# Minimal DM Modu: chatbox widget'ı GİZLİYKEN devreye giren alt DM dock'u.
+    Bu koşul sunucu tarafında değerlendirilir; JS chatbox gizle/göster sonrası
+    Turbo.visit(replace) ile bu bloğu yeniden render ettirir. %>
+<% unless chatbox_visible %>
+  <%= render "dashboard/minimal_dm_bar" %>
+<% end %>
+
+<!-- Siber Terminal Bildirim Widget'ı (dev_feed log) — grid'den bağımsız,
+     sağ-alt köşede yüzen JS log paneli. (Emekli edilen dev_feed GRID widget'ı
+     ile ilgisizdir; bu ayrı bileşen dokunulmadan korunur.) -->
+<div id="dev-feed-terminal" style="position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 50;" class="w-72 bg-terminal-bg border border-prompt-color/60 rounded shadow-2xl font-mono overflow-hidden">
+  <!-- Başlık Çubuğu -->
+  <div class="bg-terminal-bg-3 border-b border-terminal-border px-3 py-2 flex items-center gap-2">
+    <div data-skin="mac" class="flex gap-1.5" aria-hidden="true">
+      <div class="w-2.5 h-2.5 rounded-full bg-gray-700"></div>
+      <div class="w-2.5 h-2.5 rounded-full bg-gray-700"></div>
+      <div class="w-2.5 h-2.5 rounded-full bg-status-ok animate-pulse"></div>
+    </div>
+    <div data-skin="windows" class="flex items-center gap-1" aria-hidden="true">
+      <span class="w-4 h-3 flex items-center justify-center text-terminal-text-muted"><svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1"><line x1="1" y1="9" x2="9" y2="9"/></svg></span>
+      <span class="w-4 h-3 flex items-center justify-center text-terminal-text-muted"><svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1"><rect x="1.5" y="1.5" width="7" height="7"/></svg></span>
+      <span class="w-4 h-3 flex items-center justify-center text-terminal-text-muted"><svg width="8" height="8" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg></span>
+    </div>
+    <span class="text-[10px] text-prompt-color tracking-widest uppercase">dev_feed.log</span>
+  </div>
+
+  <!-- Log Alanı (JS tarafından doldurulur) -->
+  <div id="dev-feed-log" class="p-3 text-[10px] text-text-muted max-h-40 overflow-hidden leading-relaxed">
+    <span class="text-terminal-text-muted italic">// awaiting broadcast...</span>
+  </div>
+</div>
+
+<!-- Mesaj gönderildikten sonra terminal formunu otomatik temizleyen script
+     (chatbox widget'ının chat_panel'i #terminal-form id'sini kullanır). -->
+<script>
+  document.addEventListener("turbo:submit-end", function(event) {
+    if (event.target.id === "terminal-form") {
+      event.target.reset();
+    }
+  });
+</script>
+
+<style>
+  /* Scrollbar estetiği için */
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: var(--terminal-bg); }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--terminal-border); border-radius: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+  #chat-messages::-webkit-scrollbar { width: 4px; }
+  #chat-messages::-webkit-scrollbar-track { background: transparent; }
+  #chat-messages::-webkit-scrollbar-thumb { background: var(--text-secondary); }
+</style>

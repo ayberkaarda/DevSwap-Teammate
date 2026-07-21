@@ -1,0 +1,38 @@
+<% content_for :title, "#{@profile_user.name} — #{@list_title}" %>
+<div class="min-h-screen bg-surface-0 text-text-primary px-4 md:px-8 pb-8 font-sans">
+  <div class="max-w-2xl mx-auto pt-8">
+    <div class="mb-6 flex items-center justify-between border-b border-border-subtle pb-4">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-text-primary dark:text-accent-fg font-mono"><%= @list_title %></h1>
+        <p class="text-text-muted mt-1 text-sm font-mono">
+          &gt; <%= link_to @profile_user.name, public_profile_path(@profile_user.id), class: "text-accent hover:underline" %>
+        </p>
+      </div>
+      <%= link_to "← Profile Dön", public_profile_path(@profile_user.id),
+            class: "text-sm bg-surface-1 hover:bg-surface-2 border border-border-subtle text-text-primary px-4 py-2 rounded transition" %>
+    </div>
+
+    <% if @list_users.any? %>
+      <ul class="flex flex-col gap-2">
+        <% @list_users.each do |u| %>
+          <li>
+            <%= link_to public_profile_path(u.id),
+                  class: "flex items-center gap-3 p-3 bg-surface-1 border border-border-subtle rounded-lg hover:border-accent/40 transition-colors" do %>
+              <% if u.avatar_url.present? %>
+                <%= image_tag u.avatar_url, alt: u.name, class: "w-10 h-10 rounded-full ring-1 ring-border-subtle object-cover" %>
+              <% else %>
+                <span class="w-10 h-10 rounded-full bg-surface-2 border border-border-subtle inline-flex items-center justify-center text-sm font-mono text-accent"><%= u.name.to_s.first&.upcase %></span>
+              <% end %>
+              <div class="min-w-0">
+                <p class="font-semibold text-sm text-text-primary truncate"><%= u.name %></p>
+                <p class="text-[11px] font-mono text-text-muted uppercase tracking-widest"><%= u.role || "developer" %></p>
+              </div>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-text-muted font-mono text-sm py-8 text-center">Liste boş.</p>
+    <% end %>
+  </div>
+</div>

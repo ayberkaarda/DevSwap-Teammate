@@ -1,0 +1,21 @@
+<div class="p-4">
+  <h3 class="text-xs font-mono text-accent mb-3 tracking-widest">&gt; YENİDEN PAYLAŞANLAR (<%= users.size %>)</h3>
+  <% if users.any? %>
+    <ul class="flex flex-col gap-2">
+      <% users.each do |u| %>
+        <li>
+          <%= link_to public_profile_path(u.id), class: "flex items-center gap-2 hover:bg-accent/10 rounded p-1 transition-colors" do %>
+            <% if u.avatar_url.present? %>
+              <%= image_tag u.avatar_url, class: "w-6 h-6 rounded-full", alt: u.name %>
+            <% else %>
+              <span class="w-6 h-6 rounded-full bg-surface-2 border border-border-subtle inline-flex items-center justify-center text-[10px] font-mono text-text-muted"><%= u.name.to_s.first&.upcase %></span>
+            <% end %>
+            <span class="font-mono text-xs text-text-secondary"><%= u.name %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="text-text-muted font-mono text-xs italic">Henüz yeniden paylaşan yok.</p>
+  <% end %>
+</div>

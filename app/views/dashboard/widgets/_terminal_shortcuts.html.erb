@@ -1,0 +1,97 @@
+<%# Widget: terminal_shortcuts — tasarım kasıtlı olarak koyu terminal temasiyle
+    KONTRAST oluşturan sarı yapışkan not (sticky-note) görünümü kullanır. %>
+<div class="h-full border border-yellow-300/60 bg-yellow-100 dark:bg-yellow-200 text-yellow-900 p-4 font-mono shadow-md -rotate-1 overflow-y-auto no-visible-scrollbar"
+     data-widget-type="<%= widget.widget_type %>"
+     data-controller="terminal-shortcuts"
+     style="font-size: calc(1em * var(--widget-font-scale, 1));">
+  <div class="text-xs uppercase tracking-widest font-bold mb-2 border-b border-dashed border-yellow-900/30 pb-1">
+    Terminal Kısayolları
+  </div>
+
+  <ul class="flex flex-col gap-1.5 text-xs">
+    <li>
+      <button type="button" data-action="terminal-shortcuts#fill" data-command="/clear"
+              class="w-full text-left hover:bg-yellow-200/60 dark:hover:bg-yellow-300/60 rounded px-1 py-0.5 transition-colors cursor-pointer">
+        <span class="font-bold">/clear</span> — terminali temizle
+      </button>
+    </li>
+    <li>
+      <button type="button" data-action="terminal-shortcuts#fill" data-command="/whoami"
+              class="w-full text-left hover:bg-yellow-200/60 dark:hover:bg-yellow-300/60 rounded px-1 py-0.5 transition-colors cursor-pointer">
+        <span class="font-bold">/whoami</span> — yetki seviyeni göster
+      </button>
+    </li>
+    <li>
+      <button type="button" data-action="terminal-shortcuts#fill" data-command="/ping"
+              class="w-full text-left hover:bg-yellow-200/60 dark:hover:bg-yellow-300/60 rounded px-1 py-0.5 transition-colors cursor-pointer">
+        <span class="font-bold">/ping</span> — ağı test et
+      </button>
+    </li>
+    <li>
+      <button type="button" data-action="terminal-shortcuts#fill" data-command="/omni"
+              class="w-full text-left hover:bg-yellow-200/60 dark:hover:bg-yellow-300/60 rounded px-1 py-0.5 transition-colors cursor-pointer">
+        <span class="font-bold">/omni</span> — kişisel durum panelini göster
+      </button>
+    </li>
+    <% if current_user&.staff? %>
+    <li>
+      <button type="button" data-action="terminal-shortcuts#fill" data-command="/mute"
+              class="w-full text-left hover:bg-yellow-200/60 dark:hover:bg-yellow-300/60 rounded px-1 py-0.5 transition-colors cursor-pointer">
+        <span class="font-bold">/mute &lt;isim&gt; &lt;süre&gt;</span> — kullanıcıyı sustur
+      </button>
+    </li>
+    <li>
+      <button type="button" data-action="terminal-shortcuts#fill" data-command="/unmute"
+              class="w-full text-left hover:bg-yellow-200/60 dark:hover:bg-yellow-300/60 rounded px-1 py-0.5 transition-colors cursor-pointer">
+        <span class="font-bold">/unmute &lt;isim&gt;</span> — susturmayı kaldır
+      </button>
+    </li>
+    <% end %>
+    <% if current_user&.admin? %>
+    <li>
+      <button type="button" data-action="terminal-shortcuts#fill" data-command="/ban"
+              class="w-full text-left hover:bg-yellow-200/60 dark:hover:bg-yellow-300/60 rounded px-1 py-0.5 transition-colors cursor-pointer">
+        <span class="font-bold">/ban &lt;isim&gt; [süre gün]</span> — kullanıcıyı banla
+      </button>
+    </li>
+    <li>
+      <button type="button" data-action="terminal-shortcuts#fill" data-command="/unban"
+              class="w-full text-left hover:bg-yellow-200/60 dark:hover:bg-yellow-300/60 rounded px-1 py-0.5 transition-colors cursor-pointer">
+        <span class="font-bold">/unban &lt;isim&gt;</span> — banı kaldır
+      </button>
+    </li>
+    <% end %>
+    <li>
+      <button type="button" data-action="terminal-shortcuts#fill" data-command="/block"
+              class="w-full text-left hover:bg-yellow-200/60 dark:hover:bg-yellow-300/60 rounded px-1 py-0.5 transition-colors cursor-pointer">
+        <span class="font-bold">/block &lt;isim&gt;</span> — kullanıcıyı engelle
+      </button>
+    </li>
+    <li>
+      <button type="button" data-action="terminal-shortcuts#fill" data-command="/unblock"
+              class="w-full text-left hover:bg-yellow-200/60 dark:hover:bg-yellow-300/60 rounded px-1 py-0.5 transition-colors cursor-pointer">
+        <span class="font-bold">/unblock &lt;isim&gt;</span> — engeli kaldır
+      </button>
+    </li>
+    <li>
+      <button type="button" data-action="terminal-shortcuts#fill" data-command="/report"
+              class="w-full text-left hover:bg-yellow-200/60 dark:hover:bg-yellow-300/60 rounded px-1 py-0.5 transition-colors cursor-pointer">
+        <span class="font-bold">/report &lt;isim&gt;</span> — kullanıcıyı şikayet et
+      </button>
+    </li>
+    <li>
+      <button type="button" data-action="terminal-shortcuts#fill" data-command="/rules"
+              class="w-full text-left hover:bg-yellow-200/60 dark:hover:bg-yellow-300/60 rounded px-1 py-0.5 transition-colors cursor-pointer">
+        <span class="font-bold">/rules</span> — kuralların özetini göster
+      </button>
+    </li>
+    <li>
+      <button type="button" data-action="terminal-shortcuts#fill" data-command="/help"
+              class="w-full text-left hover:bg-yellow-200/60 dark:hover:bg-yellow-300/60 rounded px-1 py-0.5 transition-colors cursor-pointer">
+        <span class="font-bold">/help</span> — bu listeyi göster
+      </button>
+    </li>
+  </ul>
+
+  <p class="text-[10px] text-yellow-900/60 mt-3 italic">Tıkla, sohbet kutusuna yazılsın.</p>
+</div>

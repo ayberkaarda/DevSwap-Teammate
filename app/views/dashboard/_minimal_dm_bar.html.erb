@@ -1,0 +1,65 @@
+<%# Minimal DM Modu (Faz 31e → 32c redesign) — chatbox widget'ı gizliyken devreye
+    giren alt DM dock'u. Facebook Messenger "chat heads" tarzı: alt kenarda yan yana
+    dizilmiş yuvarlak avatar balonları. Okunmamış sayısı küçük kırmızı rozet, üzerine
+    gelince isim tooltip'i, tıklayınca o TEK konuşma yukarı doğru açılır. %>
+<%#
+    KONUMLANDIRMA (çakışma düzeltmesi): dock ALT-ORTA'ya (bottom-6 + yatay ortalı)
+    yerleştirildi. Böylece:
+      • sol-alttaki "Post Oluştur" butonu (fixed bottom-6 left-6, z-40) ile ÇAKIŞMAZ,
+      • sağ-alttaki #dev-feed-terminal widget'ı (bottom:1.5rem; right:1.5rem, w-72) ile
+        ÇAKIŞMAZ.
+    z-50 ile ikisinin de üstünde ama kendi (orta) şeridinde durur. %>
+<%
+  dm_rooms = ChatRoom.dm_rooms_for(current_user).to_a
+%>
+<div data-controller="minimal-dm" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 font-mono">
+
+  <!-- Yukarı açılan tek-DM mesaj kutusu (başlangıçta gizli, dock'un üzerinde ortalı) -->
+  <div data-minimal-dm-target="popup"
+       class="hidden absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-80 max-w-[90vw] bg-terminal-bg-2 border border-terminal-border rounded shadow-2xl overflow-hidden">
+    <div class="flex items-center justify-end bg-terminal-bg-3 border-b border-terminal-border px-2 py-1">
+      <button type="button" data-action="minimal-dm#close" aria-label="Kapat"
+              class="text-terminal-text-muted hover:text-terminal-text text-xs leading-none px-1">✕</button>
+    </div>
+    <%# Frame içeriği rooms#show'dan (minimal:1) çekilir: karşı katılımcının avatar+isim
+        başlığı + SADECE bu konuşmanın mesajları — oda sekmeleri (room_tabs) YOK. %>
+    <%= turbo_frame_tag "chat_panel", src: nil, data: { "minimal-dm-target": "frame" } %>
+  </div>
+
+  <!-- Alt DM dock'u: yan yana chat head balonları -->
+  <div class="flex items-end gap-2 bg-terminal-bg-3/90 backdrop-blur border border-terminal-border rounded-full px-3 py-2 shadow-xl">
+    <span class="text-[10px] text-prompt-color tracking-widest uppercase pr-1 self-center" aria-hidden="true">DM</span>
+    <% if dm_rooms.empty? %>
+      <span class="text-[10px] text-terminal-text-muted tracking-widest uppercase pr-1 self-center">boş</span>
+    <% else %>
+      <% dm_rooms.each do |room| %>
+        <% other = room.other_participant(current_user) %>
+        <% next unless other %>
+        <% unread = room.messages.where(read_at: nil).where.not(user_id: current_user.id).count %>
+        <button type="button"
+                data-action="minimal-dm#open"
+                data-room-slug="<%= room.slug %>"
+                data-room-url="<%= room_path(room.slug, minimal: 1) %>"
+                class="group relative shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-prompt-color rounded-full transition-transform hover:-translate-y-1">
+          <%# Hover tooltip: karşı katılımcının adı. %>
+          <span class="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity bg-terminal-bg-3 border border-terminal-border text-terminal-text text-[10px] px-2 py-1 rounded shadow-lg normal-case">
+            <%= other.name %>
+          </span>
+          <% if other.avatar_url.present? %>
+            <img src="<%= other.avatar_url %>" alt="<%= other.name %>"
+                 class="w-10 h-10 rounded-full border-2 border-terminal-border group-hover:border-prompt-color object-cover transition-colors">
+          <% else %>
+            <span class="w-10 h-10 rounded-full bg-surface-3 border-2 border-terminal-border group-hover:border-prompt-color flex items-center justify-center text-text-secondary uppercase text-sm transition-colors">
+              <%= other.name.to_s.first %>
+            </span>
+          <% end %>
+          <% if unread > 0 %>
+            <span class="absolute -top-1 -right-1 min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-terminal-bg-3">
+              <%= unread %>
+            </span>
+          <% end %>
+        </button>
+      <% end %>
+    <% end %>
+  </div>
+</div>

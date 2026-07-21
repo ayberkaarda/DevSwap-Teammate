@@ -1,0 +1,47 @@
+<%# Oda Sekmeleri. DM sekmeleri per-user "kapatilabilir" (× butonu → rooms#dismiss):
+    kapatilan DM gizlenir; o odaya YENI mesaj gelince okunmamis rozetiyle (+N) geri
+    belirir. Gizli oda id'leri controller'dan gelir; verilmezse burada hesaplanir
+    (dashboard chatbox widget'i local gecmediginde). Aktif oda ASLA gizlenmez. %>
+<% hidden_room_ids = local_assigns.fetch(:hidden_room_ids) { DismissedConversation.hidden_room_ids_for(current_user) } %>
+<div class="flex items-center gap-1 shrink-0 border-b border-terminal-border bg-terminal-bg-3 px-2 overflow-x-auto no-visible-scrollbar" role="tablist" aria-label="Sohbet odaları">
+  <% chat_rooms.each do |room| %>
+    <% if room.private? %>
+      <% is_active = room.id == active_room.id %>
+      <% next if hidden_room_ids.include?(room.id) && !is_active %>
+      <% unread = room.unread_count_for(current_user) %>
+      <div class="flex items-center shrink-0 border-b-2 transition-colors <%= is_active ? "border-emerald-500" : "border-transparent" %>">
+        <%= link_to room_path(room.slug),
+              data: { turbo_frame: "chat_panel" },
+              role: "tab",
+              "aria-selected": is_active.to_s,
+              class: "flex items-center gap-1 pl-3 py-2 text-xs font-mono tracking-widest whitespace-nowrap " +
+                (is_active ? "text-emerald-500" : "text-terminal-text-muted hover:text-emerald-400") do %>
+          <span aria-hidden="true">@</span>
+          <span class="normal-case"><%= room.display_name_for(current_user) %></span>
+          <%# Eşleşme kaynaklı DM'ler küçük bir "Eşleşme" rozetiyle işaretlenir; "direct"
+              DM'ler (profilden açılan) rozetsizdir — sıradan bir sohbet gibi görünür. %>
+          <% if room.match_origin? %>
+            <span class="ml-1 text-[8px] uppercase tracking-widest text-amber-500 border border-amber-500/40 rounded px-1 py-0.5 leading-none">Eşleşme</span>
+          <% end %>
+          <% if unread > 0 %>
+            <span class="ml-1 min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center leading-none">+<%= unread %></span>
+          <% end %>
+        <% end %>
+        <%# "×" per-user gizleme: oda/mesajlar silinmez. _top hedeflenir ki dismiss'in
+            root_path redirect'i chat_panel frame'i icinde takilmasin. %>
+        <%= button_to "×", dismiss_room_path(room.slug),
+              method: :post,
+              form: { data: { turbo_frame: "_top" }, class: "shrink-0" },
+              class: "pr-2 pl-1 py-2 text-xs leading-none text-terminal-text-muted hover:text-red-400 transition-colors cursor-pointer",
+              aria: { label: "#{room.display_name_for(current_user)} sohbetini kapat" } %>
+      </div>
+    <% else %>
+      <%= link_to room.name, room_path(room.slug),
+            data: { turbo_frame: "chat_panel" },
+            role: "tab",
+            "aria-selected": (room.id == active_room.id).to_s,
+            class: "px-3 py-2 text-xs font-mono tracking-widest uppercase border-b-2 transition-colors whitespace-nowrap " +
+              (room.id == active_room.id ? "border-prompt-color text-prompt-color" : "border-transparent text-terminal-text-muted hover:text-terminal-text") %>
+    <% end %>
+  <% end %>
+</div>

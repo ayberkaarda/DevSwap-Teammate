@@ -1,0 +1,31 @@
+<% if @minimal %>
+  <%# Minimal DM popup (chatbox widget gizliyken alt dock'tan acilan balon): SADECE bu
+      tek konusma render edilir — koyu terminal chrome'u / kenar cubugu YOK, cunku bu
+      icerik yalnizca chat_panel Turbo Frame'i olarak (frame promotion) cekilir. %>
+  <%= turbo_frame_tag "chat_panel" do %>
+    <%= render "dashboard/minimal_dm_header", chat_room: @chat_room %>
+    <%= render "dashboard/chat_panel", chat_room: @chat_room, messages: @messages, new_message: @new_message %>
+  <% end %>
+<% else %>
+  <%# Standalone /rooms/:slug tam sayfa gorunum (Faz 32d redesign): tam yukseklik koyu
+      terminal arka plani + 2 sutun — sol'da (dar) sohbet paneli, sag'da DM kisileri +
+      arama kenar cubugu. Sohbet icerigi yine paylasilan terminal chrome'u ICINDE ve
+      "chat_panel" Turbo Frame'i olarak render edilir; boylece dashboard sekme tiklama
+      ve minimal popup frame promotion mekanizmalari BOZULMAZ (yalnizca #chat_panel
+      dugumu cekilir, disardaki chrome/sidebar yok sayilir). %>
+  <% chrome_title = @chat_room.private? ? @chat_room.display_name_for(current_user) : @chat_room.name %>
+  <div class="min-h-screen bg-terminal-bg px-4 py-6 font-sans">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_18rem] gap-4 lg:h-[calc(100vh-6rem)]">
+      <!-- Sol: sohbet paneli (dar, tam-genislik degil) -->
+      <%= render layout: "dashboard/terminal_chrome", locals: { title: chrome_title } do %>
+        <%= turbo_frame_tag "chat_panel" do %>
+          <%= render "dashboard/room_tabs", chat_rooms: @chat_rooms, active_room: @chat_room, hidden_room_ids: @hidden_room_ids %>
+          <%= render "dashboard/chat_panel", chat_room: @chat_room, messages: @messages, new_message: @new_message %>
+        <% end %>
+      <% end %>
+
+      <!-- Sag: DM kisileri + arama -->
+      <%= render "rooms/dm_sidebar", dm_rooms: @dm_rooms, active_room: @chat_room %>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  skill: one
+
+  direction: teaching
+
+  source: manual
+  weight: 0.8
+
+two:
+  user: two
+  skill: two
+
+  direction: learning
+
+  source: manual
+  weight: 0.5

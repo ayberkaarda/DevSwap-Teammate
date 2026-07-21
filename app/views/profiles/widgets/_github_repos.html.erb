@@ -1,0 +1,30 @@
+<%# github_repos: profile_user'ın profilde görünür repoları. %>
+<% visible_repos = profile_user.github_repositories.order(stargazers_count: :desc).visible %>
+<div class="h-full bg-surface-1 border border-border-subtle p-6 overflow-auto"
+     style="font-size: calc(1em * var(--widget-font-scale, 1));">
+  <h3 class="text-xs font-mono text-accent mb-4 tracking-widest">&gt; GITHUB_REPOS.scan()</h3>
+
+  <% if visible_repos.blank? %>
+    <p class="text-xs font-mono text-text-muted italic">Henüz taranmış bir repo yok.</p>
+  <% else %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <% visible_repos.each do |repo| %>
+        <a href="<%= repo.html_url %>" target="_blank" rel="noopener" class="block bg-surface-2 border border-border-subtle p-4 hover:border-accent/50 transition-colors">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-sm font-bold text-text-primary font-mono truncate"><%= repo.name %></span>
+            <span class="flex items-center gap-1 text-[10px] font-mono text-text-muted shrink-0 ml-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <%= repo.stargazers_count %>
+            </span>
+          </div>
+          <% if repo.description.present? %>
+            <p class="text-xs text-text-secondary mb-2 line-clamp-2"><%= repo.description %></p>
+          <% end %>
+          <% if repo.primary_language.present? %>
+            <span class="text-[10px] font-mono border border-border-subtle bg-surface-1 dark:bg-transparent text-text-secondary px-2 py-0.5"><span class="text-accent">></span> <%= repo.primary_language %></span>
+          <% end %>
+        </a>
+      <% end %>
+    </div>
+  <% end %>
+</div>

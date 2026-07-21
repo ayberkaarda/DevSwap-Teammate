@@ -1,0 +1,35 @@
+<%# reposts: profile_user'ın repost'ladığı gönderiler (kompakt liste).
+    User modelinde has_many :reposts ilişkisi olmadığından doğrudan Repost
+    üzerinden sorgulanır; N+1 önlemek için post ve yazarı eager-load edilir. %>
+<% reposts = Repost.where(user: profile_user).includes(post: :user).order(created_at: :desc).limit(8) %>
+<div class="h-full bg-surface-1 border border-border-subtle p-6 overflow-auto"
+     style="font-size: calc(1em * var(--widget-font-scale, 1));">
+  <h3 class="text-xs font-mono text-accent mb-4 tracking-widest">&gt; REPOSTS.feed()</h3>
+
+  <% if reposts.blank? %>
+    <p class="text-xs font-mono text-text-muted italic">Henüz yeniden paylaşılan bir gönderi yok.</p>
+  <% else %>
+    <ul class="flex flex-col gap-3">
+      <% reposts.each do |repost| %>
+        <% post = repost.post %>
+        <% next if post.nil? %>
+        <li>
+          <%= link_to post_path(post),
+                class: "block bg-surface-2 border border-border-subtle p-3 rounded hover:border-accent/50 transition-colors" do %>
+            <div class="flex items-center gap-2 mb-1 min-w-0">
+              <span class="text-[10px] font-mono text-accent shrink-0">↺</span>
+              <span class="text-xs font-semibold text-text-primary truncate"><%= post.user&.name || "silinmiş kullanıcı" %></span>
+              <span class="text-[10px] font-mono text-text-muted shrink-0 ml-auto"><%= time_ago_in_words(repost.created_at) %> önce</span>
+            </div>
+            <% if post.title.present? %>
+              <p class="text-xs font-bold text-text-primary leading-snug line-clamp-1 mb-0.5"><%= post.title %></p>
+            <% end %>
+            <p class="text-[11px] font-mono text-text-secondary leading-relaxed line-clamp-2">
+              <%= truncate(post.content.to_s, length: 120) %>
+            </p>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

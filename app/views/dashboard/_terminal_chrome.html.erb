@@ -1,0 +1,40 @@
+<%# Paylasilan terminal penceresi "chrome"u — koyu terminal govdesi + mac/windows
+    skin gecisli baslik cubugu. Hem dashboard chatbox widget'i (_chatbox.html.erb)
+    hem de standalone /rooms/:slug sayfasi (rooms/show.html.erb) bu partial'i
+    `render layout:` ile sarmalayarak KULLANIR; boylece baslik markup'i tek yerde
+    yasar. Yerel degiskenler:
+      title        — baslik cubugundaki uygulama adi (varsayilan "Global_Terminal.exe")
+      height_class — dis kapsayicinin yukseklik sinifi (varsayilan "h-full")
+%>
+<% title ||= "Global_Terminal.exe" %>
+<% height_class = local_assigns.fetch(:height_class, "h-full") %>
+<div class="flex flex-col bg-terminal-bg-2 border border-terminal-border shadow-2xl relative <%= height_class %>">
+  <!-- Chat Header -->
+  <div class="bg-terminal-bg-3 border-b border-terminal-border px-4 py-3 flex items-center justify-between gap-3">
+    <div data-skin="mac" class="flex items-center gap-3">
+      <div class="flex gap-1.5" aria-hidden="true">
+        <div class="w-3 h-3 rounded-full bg-gray-700"></div>
+        <div class="w-3 h-3 rounded-full bg-gray-700"></div>
+        <div class="w-3 h-3 rounded-full bg-status-ok"></div>
+      </div>
+      <span class="text-xs text-terminal-text-muted font-mono tracking-widest uppercase"><%= title %></span>
+    </div>
+    <div data-skin="windows" class="flex items-center gap-3">
+      <span class="text-xs text-terminal-text-muted font-mono tracking-widest uppercase"><%= title %></span>
+    </div>
+
+    <button type="button" data-controller="terminal-skin" data-action="click->terminal-skin#toggle"
+            class="ml-auto p-1 rounded text-terminal-text-muted hover:text-terminal-text transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-prompt-color"
+            aria-label="Terminal görünümünü değiştir (macOS/Windows)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+    </button>
+
+    <div data-skin="windows" class="flex items-center gap-1" aria-hidden="true">
+      <span class="w-5 h-4 flex items-center justify-center text-terminal-text-muted"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1"><line x1="1" y1="9" x2="9" y2="9"/></svg></span>
+      <span class="w-5 h-4 flex items-center justify-center text-terminal-text-muted"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1"><rect x="1.5" y="1.5" width="7" height="7"/></svg></span>
+      <span class="w-5 h-4 flex items-center justify-center text-terminal-text-muted"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1"><line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/></svg></span>
+    </div>
+  </div>
+
+  <%= yield %>
+</div>

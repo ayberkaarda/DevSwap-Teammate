@@ -1,0 +1,45 @@
+<%# local: comment. Bir yorumu + etkilesimlerini + (top-level ise) yanitlari render eder. %>
+<div class="border-l-2 pl-3 py-1" style="border-color: var(--accent); background-color: color-mix(in srgb, var(--accent) 8%, transparent);" id="comment-<%= comment.id %>">
+  <div class="flex items-center gap-2 mb-1">
+    <span class="font-bold text-xs" style="color: var(--accent);">
+      <%= link_to comment.user.name, public_profile_path(comment.user.id), class: "hover:text-accent transition-colors" %>
+    </span>
+    <span class="text-text-muted text-[10px]"><%= time_ago_in_words(comment.created_at) %> önce</span>
+    <% if current_user && (comment.user_id == current_user.id || current_user.staff?) %>
+      <%= button_to "sil", comment_path(comment), method: :delete,
+            class: "text-[10px] font-mono text-text-muted hover:text-status-err transition-colors cursor-pointer",
+            form_class: "inline", data: { turbo_confirm: "Bu yorumu silmek istediğine emin misin?" } %>
+    <% end %>
+  </div>
+
+  <p class="text-text-secondary font-mono text-sm leading-relaxed"><%= comment.content %></p>
+
+  <!-- Yorum etkilesimleri: begeni + emoji tepkileri -->
+  <%= render "comments/interactions", comment: comment %>
+
+  <% if comment.parent_id.nil? %>
+    <% replies = comment.replies.sort_by(&:created_at) %>
+
+    <% if replies.any? %>
+      <div class="ml-4 mt-2 flex flex-col gap-2" data-controller="reveal" data-reveal-step-value="5">
+        <% replies.each do |reply| %>
+          <div data-reveal-target="item"><%= render "comments/comment", comment: reply %></div>
+        <% end %>
+        <button type="button" data-reveal-target="button" data-action="reveal#more"
+                class="self-start text-[10px] font-mono text-accent hover:underline cursor-pointer">
+          devamını göster (+5)
+        </button>
+      </div>
+    <% end %>
+
+    <% if current_user %>
+      <%= form_with url: comments_path, method: :post, class: "ml-4 mt-2 flex gap-2" do |f| %>
+        <%= hidden_field_tag :post_id, comment.post_id %>
+        <%= hidden_field_tag :parent_id, comment.id %>
+        <%= f.text_field :content, placeholder: "Yanıtla...", required: true, autocomplete: "off",
+              class: "flex-1 min-w-0 bg-surface-2 dark:bg-terminal-bg border border-border-subtle rounded p-1.5 text-[11px] font-mono text-text-primary focus:border-accent focus:outline-none" %>
+        <%= f.submit "Yanıtla", class: "bg-accent/10 text-accent border border-accent/30 px-2 py-1 rounded text-[11px] font-mono cursor-pointer hover:bg-accent/20 transition-all" %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

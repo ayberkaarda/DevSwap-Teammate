@@ -1,0 +1,51 @@
+<%# "identity" widget'i — artik SADECE durum/biyo/format bilgisi tasir.
+    Avatar, isim, rol, takipci/takip sayilari ve aksiyon butonlari (Takip Et,
+    Sohbet Ac, Sikayet Et) profilin ustundeki SABIT header'a tasindi
+    (bkz. app/views/profiles/show.html.erb). widget_type anahtari "identity"
+    olarak KORUNDU (WIDGET_TYPES ve DEFAULT_LAYOUT ona referans verir); sadece
+    render edilen ICERIK degisti. %>
+<div class="h-full bg-surface-1 border border-border-subtle p-6 relative overflow-hidden group"
+     style="font-size: calc(1em * var(--widget-font-scale, 1));">
+  <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-emerald-500/50 to-indigo-500/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+  <h2 class="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+    <span class="w-2 h-2 rounded-full bg-status-ok"></span> Hakkında
+  </h2>
+
+  <%# Çevrimiçi / Eşleşmede / Son görülme durum rozeti. %>
+  <div class="mb-3">
+    <% if profile_user.is_online? %>
+      <% if ChatRoom.where("(user_a_id = :id OR user_b_id = :id) AND private = true AND ended_by_a = false AND ended_by_b = false", id: profile_user.id).exists? %>
+        <span class="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full border" style="color: #f59e0b; border-color: #f59e0b; background-color: rgba(245,158,11,0.12);">Eşleşmede</span>
+      <% else %>
+        <span class="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full border" style="color: var(--status-ok); border-color: var(--status-ok); background-color: color-mix(in srgb, var(--status-ok) 12%, transparent);">Çevrimiçi</span>
+      <% end %>
+    <% else %>
+      <span class="text-[10px] font-mono text-text-muted">
+        <% if profile_user.last_seen_at.present? %>
+          <% if profile_user.last_seen_at > 24.hours.ago %>
+            Son görülme: <%= profile_user.last_seen_at.strftime("%H:%M") %>
+          <% else %>
+            Son görülme: <%= profile_user.last_seen_at.strftime("%d.%m.%Y %H:%M") %>
+          <% end %>
+        <% else %>
+          Hiç görülmedi
+        <% end %>
+      </span>
+    <% end %>
+  </div>
+
+  <p class="text-sm text-text-secondary"><%= profile_user.bio || "Sistemde biyo tanımlanmamış." %></p>
+
+  <% if profile_user.respond_to?(:teaching_format) && profile_user.teaching_format.present? %>
+    <p class="text-[10px] font-mono text-text-muted mt-3">
+      <span class="text-accent">></span> Format:
+      <%= { "one_on_one" => "Birebir", "group" => "Grup", "either" => "Farketmez" }[profile_user.teaching_format] || profile_user.teaching_format %>
+    </p>
+  <% end %>
+  <% if profile_user.respond_to?(:availability_note) && profile_user.availability_note.present? %>
+    <p class="text-[10px] font-mono text-text-muted mt-1">
+      <span class="text-accent">></span> Müsaitlik: <%= profile_user.availability_note %>
+    </p>
+  <% end %>
+</div>

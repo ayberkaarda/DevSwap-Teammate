@@ -1,0 +1,11 @@
+<%# Post gonderildikten sonra: paylasim sayisini tazele (dialog dogal olarak %>
+<%# yeniden render'la kapanir) ve basari toast'i goster. %>
+<%= turbo_stream.replace "post_#{@post.id}_interactions" do %>
+  <%= render "posts/interactions", post: @post %>
+<% end %>
+
+<% if @share_notice %>
+  <%= turbo_stream.append "main-content" do %>
+    <%= render "shared/toast", message: @share_notice, variant: :success %>
+  <% end %>
+<% end %>

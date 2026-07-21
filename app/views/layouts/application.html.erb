@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Dev Swap" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Dev Swap">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#047857">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= javascript_importmap_tags %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "gridstack", "data-turbo-track": "reload" %>
+
+    <%# Prevent Flash of Unstyled Content (FOUC) for dark mode %>
+    <script>
+      (function () {
+        var stored = localStorage.getItem('theme');
+        var mode = (stored === 'light' || stored === 'dark') ? stored : 'system';
+        var resolved = mode === 'system'
+          ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+          : mode;
+
+        document.documentElement.dataset.theme = resolved;
+        document.documentElement.classList.toggle('dark', resolved === 'dark');
+
+
+
+
+        var storedSkin = localStorage.getItem('terminal-skin');
+        var resolvedSkin;
+        if (storedSkin === 'mac' || storedSkin === 'windows') {
+          resolvedSkin = storedSkin;
+        } else {
+          var ua = navigator.userAgent || '';
+          resolvedSkin = /Windows/i.test(ua) ? 'windows' : 'mac';
+        }
+        document.documentElement.dataset.terminalSkin = resolvedSkin;
+
+
+      })();
+    </script>
+  </head>
+
+
+
+
+  <body class="bg-surface-0 text-text-primary min-h-screen antialiased motion-safe:transition-colors motion-safe:duration-200 motion-reduce:transition-none" data-on-posts-feed="<%= controller_name == "posts" && action_name == "index" && @skill.nil? %>">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-accent focus:text-white focus:px-4 focus:py-2 focus:rounded">İçeriğe atla</a>
+
+    <%= render "layouts/nav" %>
+
+    <%# Global admin duyuru bandi — giris yapmis her kullaniciya gorunur, canli guncellenir. %>
+    <% if current_user %>
+      <%= render "admin_broadcasts/banner" %>
+    <% end %>
+
+    <main id="main-content"><%= yield %></main>
+
+    <% if current_user %>
+      <%= render "layouts/floating_post_button" %>
+      <%= render "layouts/report_modal" %>
+    <% end %>
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/service-worker", { scope: "/" });
+      }
+    </script>
+  </body>
+</html>

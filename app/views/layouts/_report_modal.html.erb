@@ -1,0 +1,82 @@
+<style>
+  /* Global sikayet modali — _floating_post_button ile ayni terminal-panel estetigi.
+     Native <dialog> + backdrop; tetikleme "report:open" custom event'i ile yapilir. */
+  .report-modal {
+    border: none;
+    padding: 0;
+    background: transparent;
+    /* Tailwind preflight tum elementlerde margin:0 uyguluyor; bu da native
+       <dialog>'in varsayilan margin:auto ile ortalamasini bozuyor. Ortalamayi
+       burada acikca kuruyoruz ki tarayici reset'ten bagimsiz calissin. */
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    max-height: calc(100vh - 2rem);
+    max-width: min(32rem, calc(100vw - 2rem));
+  }
+  .report-modal::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+  .report-modal[open] .report-modal-card {
+    animation: reportModalIn 0.25s ease both;
+  }
+  @keyframes reportModalIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .report-modal[open] .report-modal-card { animation: none; }
+  }
+</style>
+
+<div data-controller="report-modal">
+  <dialog data-report-modal-target="dialog"
+          data-action="click->report-modal#backdropClick"
+          class="report-modal w-full max-w-lg">
+    <div class="report-modal-card bg-surface-1 border border-border-subtle shadow-2xl p-5 rounded"
+         data-action="turbo:submit-end->report-modal#submitEnd">
+      <div class="flex items-center justify-between mb-4 border-b border-border-subtle pb-2">
+        <h2 class="text-xs font-mono text-status-warn tracking-widest">&gt; ŞİKAYET ET</h2>
+        <button type="button" data-action="report-modal#close"
+                class="text-text-muted hover:text-status-err font-mono text-sm" aria-label="Kapat">✕</button>
+      </div>
+
+      <%= form_with url: complaints_path, method: :post, multipart: true, class: "flex flex-col gap-3" do |form| %>
+        <input type="hidden" name="target_username" data-report-modal-target="username" value="">
+
+        <div class="flex flex-col gap-1">
+          <span class="text-[10px] font-mono text-text-muted uppercase tracking-wider">Şikayet edilen</span>
+          <input type="text" readonly
+                 data-report-modal-target="targetDisplay"
+                 class="bg-surface-2 dark:bg-terminal-bg border border-border-subtle rounded p-2 text-xs font-mono text-text-primary cursor-not-allowed"
+                 value="">
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <span class="text-[10px] font-mono text-text-muted uppercase tracking-wider">Açıklama</span>
+          <%= form.text_area :description, placeholder: "Ne oldu? Detaylı açıkla...", rows: 4,
+                class: "bg-surface-2 dark:bg-terminal-bg border border-border-subtle rounded p-2 text-xs font-mono text-text-primary focus:border-accent focus:outline-none transition-colors", required: true %>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <span class="text-[10px] font-mono text-text-muted uppercase tracking-wider">Kanıt görseli <span class="text-text-muted normal-case">(opsiyonel)</span></span>
+          <%= form.file_field :evidence_photo, accept: "image/*",
+                class: "text-xs font-mono text-text-secondary file:mr-3 file:bg-surface-2 file:dark:bg-terminal-bg file:border file:border-border-subtle file:rounded file:px-3 file:py-1.5 file:text-xs file:font-mono file:text-text-primary file:cursor-pointer hover:file:border-accent" %>
+        </div>
+
+        <p class="text-[10px] font-mono text-status-warn/90 leading-relaxed border border-status-warn/30 rounded p-2"
+           style="background-color: color-mix(in srgb, var(--status-warn) 8%, transparent);">
+          ⚠ Asılsız veya kötü niyetli şikayetler de kural ihlali sayılır ve cezaya tabi tutulabilir.
+        </p>
+
+        <div class="flex justify-end gap-2 mt-1 pt-2 border-t border-border-subtle">
+          <button type="button" data-action="report-modal#close"
+                  class="text-text-muted hover:text-text-primary font-mono text-xs px-3 py-2">İptal</button>
+          <%= form.submit "Şikayeti Gönder", class: "bg-status-warn/10 text-status-warn border border-status-warn/40 px-4 py-2 rounded text-xs font-mono cursor-pointer hover:bg-status-warn/20 transition-all" %>
+        </div>
+      <% end %>
+    </div>
+  </dialog>
+</div>

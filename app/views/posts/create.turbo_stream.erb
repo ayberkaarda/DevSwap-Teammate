@@ -1,0 +1,15 @@
+<%# Akis sayfasindan gonderilen post: sayfa yenilemeden listenin basina %>
+<%# ekle, compose formunu sifirla, bos-durum mesajini kaldir ve toast goster. %>
+<%= turbo_stream.remove "feed-empty" %>
+
+<%= turbo_stream.prepend "posts-list" do %>
+  <%= render "posts/post", post: @post %>
+<% end %>
+
+<%= turbo_stream.replace "post-compose" do %>
+  <%= render "posts/compose" %>
+<% end %>
+
+<%= turbo_stream.append "toast-region" do %>
+  <%= render "shared/toast", message: "Yayınlandı ✓", variant: :success %>
+<% end %>

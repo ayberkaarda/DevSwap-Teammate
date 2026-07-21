@@ -1,0 +1,53 @@
+<%# Widget: match_algorithm — Dinamik Keşif Matrisi (arama + eşleşme sonuçları). %>
+<%# Controller ivar'larını kullanır: @users, params[:q]. local `widget` yoksayılır. %>
+<%# current_user'in HALIHAZIRDA DM odasi olan kisilerinin id kumesi — "Bağlantı Kur"
+    yerine "Sohbete Git" etiketi gostermek icin (tek sorgu, N+1 yok). %>
+<% connected_user_ids = ChatRoom.dm_rooms_for(current_user)
+                                .flat_map { |r| [ r.user_a_id, r.user_b_id ] }
+                                .uniq
+                                .reject { |id| id == current_user.id }
+                                .to_set %>
+<%# Canli eslesme guncellemesi: karsi taraf (veya baska bir sekme) "Baglanti Kur"a
+    basip GERCEK bir match-origin DM odasi olusturunca, ChatRoom bu izleyicinin
+    per-user stream'ine ilgili adayin kartini "Sohbete Git" haliyle yayinlar. Abonelik
+    nodes_grid frame'inin DISINDA tutulur; boylece arama frame'i yeniden yuklendiginde
+    abonelik dusmez. %>
+<%= turbo_stream_from "user_#{current_user.id}_matches" %>
+<!-- DİNAMİK KEŞİF MATRİSİ -->
+<%= form_with url: root_path, method: :get, data: { turbo_frame: "nodes_grid", turbo_action: "advance" }, class: "mb-6 flex items-center gap-2" do |f| %>
+  <span class="text-indigo-600 dark:text-indigo-500 font-bold text-lg">•</span>
+  <span class="text-text-secondary font-mono text-sm font-bold tracking-wider">sys.match_algorithm(</span>
+
+  <%= f.text_field :q, value: params[:q], placeholder: "'Rust', 'React'...", autocomplete: "off", class: "bg-transparent border-b border-border-subtle focus:border-accent text-accent font-mono text-sm outline-none px-1 w-32 md:w-48 transition-colors placeholder-text-muted" %>
+
+  <span class="text-text-secondary font-mono text-sm font-bold tracking-wider">)</span>
+  <%= f.submit "Çalıştır", class: "hidden" %>
+<% end %>
+
+<!-- Eşleşme Sonuçları Kapsayıcısı -->
+<%= turbo_frame_tag "nodes_grid", class: "flex flex-col gap-4", data: { controller: "pagination" } do %>
+  <% if @users.any? %>
+    <% @users.each_with_index do |user, index| %>
+      <%= render "dashboard/widgets/match_user_card",
+                 user: user,
+                 index: index,
+                 connected: connected_user_ids.include?(user.id) %>
+    <% end %>
+
+    <% if @users.count > 4 %>
+      <div class="flex items-center justify-between gap-4 mt-2 font-mono text-xs">
+        <button type="button" data-action="pagination#prev" data-pagination-target="prevButton" class="border border-border-subtle bg-surface-2 text-text-secondary px-3 py-1.5 rounded hover:border-accent hover:text-accent transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-border-subtle disabled:hover:text-text-secondary">
+          ‹ Önceki
+        </button>
+        <span data-pagination-target="indicator" class="text-text-muted tracking-widest"></span>
+        <button type="button" data-action="pagination#next" data-pagination-target="nextButton" class="border border-border-subtle bg-surface-2 text-text-secondary px-3 py-1.5 rounded hover:border-accent hover:text-accent transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-border-subtle disabled:hover:text-text-secondary">
+          Sonraki ›
+        </button>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="p-4 border border-status-err/30 bg-status-err/10 text-rose-700 dark:text-status-err font-mono text-sm transition-colors">
+      [HATA] Eşleşme algoritması sonuç döndüremedi. Kriterlere uygun düğüm bulunamadı.
+    </div>
+  <% end %>
+<% end %>

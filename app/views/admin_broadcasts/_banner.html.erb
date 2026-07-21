@@ -1,0 +1,17 @@
+<%# Global admin duyuru bandi. Layout'ta giris yapmis her kullaniciya render
+    edilir. "global_announcements" stream'ine abone olur; AdminBroadcastsController
+    yeni duyuruyu bu listenin basina canli olarak ekler (sayfa yenilemeden).
+    Bos oldugunda gorsel iz birakmaz (dikey padding yok); Turbo prepend hedefi
+    olan #global-announcements-list her zaman DOM'da bulunur. %>
+<%= turbo_stream_from "global_announcements" %>
+<div class="max-w-5xl mx-auto px-4">
+  <div id="global-announcements-list" class="flex flex-col">
+    <%
+      dismissed_ids = AdminBroadcastDismissal.dismissed_broadcast_ids_for(current_user)
+      visible_broadcasts = AdminBroadcast.active.recent.where.not(id: dismissed_ids)
+    %>
+    <% visible_broadcasts.each do |broadcast| %>
+      <%= render "admin_broadcasts/broadcast", broadcast: broadcast %>
+    <% end %>
+  </div>
+</div>

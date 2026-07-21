@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: Ada Lovelace
+  email: ada@example.com
+  bio: Backend gelistirici
+
+  role: admin
+  terms_accepted_at: 2026-01-01 00:00:00
+
+
+two:
+  name: Alan Turing
+  email: alan@example.com
+  bio: Full-stack gelistirici
+  role: member
+
+  terms_accepted_at: 2026-01-01 00:00:00
+

@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# =============================================================================
+# DEV-ONLY iş işleyici. Production'da KULLANILMAZ — production `bin/jobs`
+# (SolidQueue::Cli / Supervisor) kullanır, bu Supervisor multi-process
+# orkestrasyon + fork + sinyal yönetimi (SIGQUIT/SIGTERM/SIGINT) sağlar.
+#
+# Bu script SADECE Windows geliştirme ortamı için var: Solid Queue'nun
+# Supervisor'ı Process.fork ve SIGQUIT trap'i kullanıyor, ikisi de native
+# Windows Ruby'de desteklenmiyor (doğrulandı: `bin/jobs` "unsupported signal
+# 'SIGQUIT'" ile, Puma'nın `plugin :solid_queue`'su "fork() function is
+# unimplemented" ile çöküyor). Worker/Dispatcher/Scheduler sınıflarının
+# kendisi trap/fork KULLANMIYOR — bu script onları Supervisor'sız, düz Ruby
+# thread'leri olarak aynı process içinde çalıştırıyor. Linux/macOS'ta veya
+# production'da bunun yerine `bin/jobs` kullanın.
+# =============================================================================
+
+require_relative "../config/environment"
+
+recurring_tasks = SolidQueue::Configuration.new(mode: :development).send(:recurring_tasks)
+
+worker = SolidQueue::Worker.new(queues: "*", threads: 3, polling_interval: 0.2)
+dispatcher = SolidQueue::Dispatcher.new(polling_interval: 0.5, batch_size: 500)
+scheduler = SolidQueue::Scheduler.new(recurring_tasks: recurring_tasks, polling_interval: 1)
+
+processes = [ worker, dispatcher, scheduler ]
+
+puts "[dev_worker] Başlatılıyor: Worker + Dispatcher + Scheduler (Supervisor'sız, thread-tabanlı, Windows-uyumlu)"
+puts "[dev_worker] Recurring task sayısı: #{recurring_tasks.size} (#{recurring_tasks.map(&:key).join(', ')})"
+
+processes.each(&:start)
+
+trap("INT") do
+  puts "\n[dev_worker] Kapatılıyor..."
+  processes.each(&:stop)
+  exit
+end
+
+sleep

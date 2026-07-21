@@ -1,0 +1,130 @@
+<%# Instagram-tarzi tek-sutun akis karti. local: post %>
+<% top_comments = post.comments.select { |c| c.parent_id.nil? }.sort_by(&:created_at) %>
+<article class="post-card group border border-border-subtle bg-surface-1 rounded-xl overflow-hidden shadow-sm dark:shadow-none hover:border-accent/40 transition-colors">
+  <!-- YAZAR BASLIGI -->
+  <header class="flex items-center gap-3 px-4 pt-4 pb-3">
+    <%= link_to public_profile_path(post.user.id), class: "shrink-0" do %>
+      <% if post.user.avatar_url.present? %>
+        <%= image_tag post.user.avatar_url, alt: post.user.name,
+              class: "w-10 h-10 rounded-full ring-1 ring-border-subtle object-cover hover:ring-accent transition-all" %>
+      <% else %>
+        <span class="w-10 h-10 rounded-full bg-surface-2 border border-border-subtle inline-flex items-center justify-center text-sm font-mono text-accent"><%= post.user.name.to_s.first&.upcase %></span>
+      <% end %>
+    <% end %>
+    <div class="min-w-0 flex-1">
+      <%= link_to post.user.name, public_profile_path(post.user.id),
+            class: "block font-semibold text-sm text-text-primary hover:text-accent transition-colors truncate" %>
+      <span class="text-text-muted text-[11px] font-mono"><%= time_ago_in_words(post.created_at) %> önce</span>
+    </div>
+
+    <%# Uc-nokta menu: sikayet + feed tercihi. Yalnizca giris yapmis ve
+        BASKASININ postunda gorunur (kendi postunda gizli). %>
+    <% if current_user && current_user.id != post.user.id %>
+      <div class="shrink-0" data-controller="report-modal">
+        <details class="relative font-mono">
+          <summary class="list-none cursor-pointer select-none w-8 h-8 flex items-center justify-center rounded-full text-text-muted hover:bg-surface-2 hover:text-accent transition-colors" aria-label="Post menüsü">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+          </summary>
+          <div class="absolute right-0 mt-1 w-52 z-40 bg-surface-1 border border-border-subtle rounded shadow-2xl overflow-hidden text-xs">
+            <button type="button"
+                    data-action="report-modal#openFromButton"
+                    data-report-modal-username-param="<%= post.user.name %>"
+                    class="block w-full text-left px-3 py-2 hover:bg-surface-2 text-status-warn hover:text-status-warn transition-colors cursor-pointer">
+              Bu postu şikayet et
+            </button>
+            <%= button_to feed_preferences_path,
+                  params: { target_user_id: post.user.id, preference: "interested" },
+                  form: { class: "block" },
+                  class: "w-full text-left px-3 py-2 hover:bg-surface-2 text-text-muted hover:text-emerald-500 transition-colors cursor-pointer" do %>
+              İlgileniyorum
+            <% end %>
+            <%= button_to feed_preferences_path,
+                  params: { target_user_id: post.user.id, preference: "not_interested" },
+                  form: { class: "block" },
+                  class: "w-full text-left px-3 py-2 hover:bg-surface-2 text-text-muted hover:text-status-err transition-colors cursor-pointer" do %>
+              İlgilenmiyorum
+            <% end %>
+            <% existing_block = current_user.blocks_made.find_by(blocked_id: post.user.id) %>
+            <% if existing_block %>
+              <%= button_to block_path(existing_block), method: :delete,
+                    form: { class: "block" },
+                    class: "w-full text-left px-3 py-2 hover:bg-surface-2 text-text-muted hover:text-status-err transition-colors cursor-pointer" do %>
+                Engeli Kaldır
+              <% end %>
+            <% else %>
+              <%= button_to blocks_path, params: { blocked_id: post.user.id }, method: :post,
+                    form: { class: "block" },
+                    data: { turbo_confirm: "Bu kullanıcıyı engellemek istediğine emin misin? Artık birbirinizin postlarını/profillerini göremeyeceksiniz." },
+                    class: "w-full text-left px-3 py-2 hover:bg-surface-2 text-text-muted hover:text-status-err transition-colors cursor-pointer" do %>
+                Engelle
+              <% end %>
+            <% end %>
+          </div>
+        </details>
+      </div>
+    <% end %>
+  </header>
+
+  <!-- ICERIK -->
+  <div class="px-4 pb-3">
+    <% if post.title.present? %>
+      <h2 class="text-base font-bold text-text-primary mb-1 leading-snug">
+        <%= link_to post.title, post_path(post), class: "hover:text-accent transition-colors" %>
+      </h2>
+    <% end %>
+    <p class="text-text-secondary font-mono text-sm leading-relaxed whitespace-pre-line">
+      <%= link_to truncate(post.content, length: 280), post_path(post), class: "hover:text-text-primary transition-colors" %>
+    </p>
+
+    <% if post.skills.any? %>
+      <div class="flex flex-wrap gap-1.5 mt-3">
+        <% post.skills.each do |skill| %>
+          <%= link_to "##{skill.name}", tag_posts_path(tag: skill.name),
+                class: "text-[10px] font-mono border border-accent/30 bg-accent/10 text-accent px-2 py-0.5 rounded-full hover:bg-accent/20 transition-colors" %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- ETKILESIM CUBUGU -->
+  <div class="px-2">
+    <%= render "posts/interactions", post: post %>
+  </div>
+
+  <!-- YORUMLAR (inline, akordeon) -->
+  <details class="px-4 pb-4 pt-1 group/comments">
+    <summary class="cursor-pointer list-none text-[11px] font-mono text-text-muted hover:text-accent transition-colors select-none flex items-center gap-1">
+      <span class="group-open/comments:hidden">
+        <%= top_comments.any? ? "#{top_comments.size} yorumu göster" : "Yorum yaz" %>
+      </span>
+      <span class="hidden group-open/comments:inline">Yorumları gizle</span>
+    </summary>
+
+    <div class="mt-3 flex flex-col gap-2" data-controller="reveal" data-reveal-step-value="3">
+      <% top_comments.each do |comment| %>
+        <div data-reveal-target="item" class="text-sm leading-relaxed">
+          <%= link_to comment.user.name, public_profile_path(comment.user.id),
+                class: "font-semibold text-xs text-text-primary hover:text-accent transition-colors" %>
+          <span class="text-text-secondary font-mono"><%= comment.content %></span>
+        </div>
+      <% end %>
+      <% if top_comments.any? %>
+        <button type="button" data-reveal-target="button" data-action="reveal#more"
+                class="self-start text-[10px] font-mono text-accent hover:underline cursor-pointer" hidden>
+          devamını göster (+3)
+        </button>
+        <%= link_to "Tüm konuşmayı aç →", post_path(post),
+              class: "self-start text-[10px] font-mono text-text-muted hover:text-accent transition-colors" %>
+      <% end %>
+    </div>
+
+    <% if current_user %>
+      <%= form_with url: comments_path, method: :post, class: "mt-3 flex gap-2" do |f| %>
+        <%= hidden_field_tag :post_id, post.id %>
+        <%= f.text_field :content, placeholder: "Bir yorum yaz...", required: true, autocomplete: "off",
+              class: "flex-1 min-w-0 bg-surface-2 dark:bg-terminal-bg border border-border-subtle rounded-full px-3 py-1.5 text-[11px] font-mono text-text-primary focus:border-accent focus:outline-none transition-colors" %>
+        <%= f.submit "Gönder", class: "bg-accent/10 text-accent border border-accent/30 px-3 py-1.5 rounded-full text-[11px] font-mono cursor-pointer hover:bg-accent/20 transition-all" %>
+      <% end %>
+    <% end %>
+  </details>
+</article>

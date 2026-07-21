@@ -1,0 +1,19 @@
+<%# Tek bir admin duyuru karti. Hem ilk sayfa yuklemesinde hem de Turbo
+    prepend ile canli olarak render edilir. %>
+<div id="<%= dom_id(broadcast) %>" class="mt-2 first:mt-4 flex items-start gap-3 border border-accent/40 bg-accent/10 text-text-primary px-4 py-2.5 rounded-lg shadow-sm">
+  <span class="text-accent font-mono text-xs mt-0.5 shrink-0" aria-hidden="true">&gt;_</span>
+  <div class="min-w-0 flex-1">
+    <p class="font-mono text-sm leading-snug break-words"><%= broadcast.message %></p>
+    <p class="font-mono text-[10px] text-text-muted mt-1">
+      DUYURU — <%= broadcast.admin.name %> · <%= broadcast.created_at.strftime("%d.%m.%Y %H:%M") %>
+    </p>
+  </div>
+  <%# Sadece bu kullanicinin gorunumunden kapatir (AdminBroadcastDismissal) —
+      duyuru DB'de kalir ve notifications#index'te "gecmis duyuru" olarak gorunur. %>
+  <%= button_to dismiss_admin_broadcast_path(broadcast), method: :post,
+        form: { class: "shrink-0" },
+        class: "text-text-muted hover:text-text-primary font-mono text-sm leading-none px-1 cursor-pointer transition-colors",
+        title: "Kapat", aria: { label: "Duyuruyu kapat" } do %>
+    &times;
+  <% end %>
+</div>

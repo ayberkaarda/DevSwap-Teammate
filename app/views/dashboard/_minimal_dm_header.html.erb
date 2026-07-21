@@ -1,0 +1,25 @@
+<%# Minimal DM popup basligi — SADECE karsi katilimcinin profil fotografi + ismi.
+    Tiklaninca o kisinin herkese acik profiline (public_profile) gider. Yalniz
+    ozel (DM) odalarda anlamlidir; genel odada guvenli sekilde bosa duser. %>
+<% other = chat_room.other_participant(current_user) %>
+<div class="flex items-center gap-2 bg-terminal-bg-3 border-b border-terminal-border px-3 py-2">
+  <% if other %>
+    <%= link_to public_profile_path(other.id), data: { turbo_frame: "_top" },
+          class: "flex items-center gap-2 min-w-0 group focus:outline-none focus-visible:ring-2 focus-visible:ring-prompt-color rounded" do %>
+      <% if other.avatar_url.present? %>
+        <img src="<%= other.avatar_url %>" alt="<%= other.name %>"
+             class="w-7 h-7 rounded-full border border-terminal-border object-cover shrink-0">
+      <% else %>
+        <span class="w-7 h-7 rounded-full bg-surface-3 border border-terminal-border flex items-center justify-center text-text-secondary uppercase text-[10px] shrink-0">
+          <%= other.name.to_s.first %>
+        </span>
+      <% end %>
+      <span class="flex flex-col min-w-0 leading-tight">
+        <span class="text-xs text-terminal-text font-bold truncate group-hover:text-prompt-color transition-colors normal-case"><%= other.name %></span>
+        <span class="text-[9px] text-terminal-text-muted tracking-widest uppercase">profili gör &rarr;</span>
+      </span>
+    <% end %>
+  <% else %>
+    <span class="text-[10px] text-prompt-color tracking-widest uppercase">DM_Kanalı.exe</span>
+  <% end %>
+</div>

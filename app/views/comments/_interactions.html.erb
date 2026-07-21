@@ -1,0 +1,28 @@
+<%# Yorum etkilesimleri: begeni + emoji tepkileri. local: comment. %>
+<%# turbo_stream ile yerinde guncellenir; kok id sabit kalmali. %>
+<% liked = current_user && comment.likes.any? { |l| l.user_id == current_user.id } %>
+<div id="comment_<%= comment.id %>_interactions" class="flex flex-wrap items-center gap-2 mt-1 text-[10px] font-mono">
+  <% if current_user %>
+    <%= button_to toggle_comment_like_path(comment),
+          class: "flex items-center gap-1 #{liked ? '' : 'text-text-muted'} hover:text-rose-500 transition-colors cursor-pointer",
+          style: (liked ? "color: var(--status-err);" : nil) do %>
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="<%= liked ? 'currentColor' : 'none' %>" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+      <%= comment.likes.size %>
+    <% end %>
+  <% else %>
+    <span class="flex items-center gap-1 text-text-muted"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg> <%= comment.likes.size %></span>
+  <% end %>
+
+  <% reaction_counts = comment.comment_reactions.group_by(&:emoji).transform_values(&:size) %>
+  <% CommentReaction::ALLOWED_EMOJI.each do |emoji| %>
+    <% count = reaction_counts[emoji] || 0 %>
+    <% if current_user %>
+      <%= button_to toggle_comment_reaction_path(comment), params: { emoji: emoji },
+            class: "flex items-center gap-0.5 #{count.positive? ? 'text-accent' : 'text-text-muted'} hover:text-accent transition-colors cursor-pointer" do %>
+        <%= emoji %><%= count.positive? ? " #{count}" : "" %>
+      <% end %>
+    <% elsif count.positive? %>
+      <span class="text-text-secondary"><%= emoji %> <%= count %></span>
+    <% end %>
+  <% end %>
+</div>

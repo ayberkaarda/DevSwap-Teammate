@@ -1,0 +1,65 @@
+<%# Tek bir eşleşme adayı kartı (buton + kart sarmalayıcı).
+    Localler:
+      user      — aday User (eşleşme akışında `reciprocal`/`reason`/`display_score`
+                  singleton attribute'larıyla zenginleştirilmiş olabilir; hepsi
+                  respond_to? ile korunur, düz bir User'da da güvenle render eder).
+      index     — @users içindeki sıra (sayfalama data-page'i için). Turbo Stream
+                  yayınında bilinmediğinden opsiyoneldir (yoksa 0).
+      connected — bu adayla zaten DM odası var mı? true ise "Sohbete Git", değilse
+                  "Bağlantı Kur" gösterilir.
+    Kartın kök elemanına per-aday sabit bir dom_id (match_user_card_<user.id>)
+    verilir; yayın bu id'yi hedef alarak butonu canlı olarak günceller. %>
+<% index = local_assigns[:index] %>
+<div id="match_user_card_<%= user.id %>"
+     class="bg-surface-1 border border-border-subtle p-4 shadow-sm dark:shadow-none relative overflow-hidden transition-all hover:border-indigo-300 dark:hover:border-indigo-900/50"
+     data-pagination-target="card" data-page="<%= index ? index / 4 : 0 %>">
+  <div class="flex justify-between items-start mb-2">
+    <div>
+      <div class="flex items-center gap-2">
+        <h3 class="text-lg font-bold text-text-primary dark:text-accent-fg"><%= link_to user.name, public_profile_path(user.id), class: "hover:text-accent hover:underline transition-colors", data: { turbo_frame: "_top" } %></h3>
+        <% if user.respond_to?(:reciprocal) && user.reciprocal %>
+          <span class="inline-flex items-center gap-1 text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border" style="color: var(--status-ok); border-color: var(--status-ok); background-color: color-mix(in srgb, var(--status-ok) 12%, transparent);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            Karşılıklı
+          </span>
+        <% end %>
+      </div>
+      <p class="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mt-1"><%= user.role || "DEVELOPER" %></p>
+    </div>
+    <%# Faz 32c: "Bağlantı Kur" artık GERÇEK bir DM odası oluşturur (origin:"match").
+        nodes_grid Turbo Frame'in İÇİNDE olduğundan form _top'a hedeflenir; aksi
+        halde Turbo, start_dm'in redirect'inde nodes_grid frame'ini arar ve bulamaz.
+        Faz 32d: zaten bir DM odası varsa etiket "Sohbete Git" olur (start_dm
+        idempotent olduğundan aynı action'a post etmek güvenli). %>
+    <%= button_to (connected ? "Sohbete Git" : "Bağlantı Kur"),
+          start_dm_room_path(user_id: user.id),
+          method: :post, params: { origin: "match" },
+          form: { data: { turbo_frame: "_top" } },
+          class: "border border-indigo-200 dark:border-indigo-900 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 px-4 py-1.5 rounded text-xs font-bold hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors cursor-pointer" %>
+  </div>
+
+  <p class="text-sm text-text-secondary mb-4 h-10 overflow-hidden"><%= user.bio || "Sistemde biyo tanımlanmamış." %></p>
+
+  <% if user.respond_to?(:reason) && user.reason.present? %>
+    <p class="text-[10px] font-mono text-accent mb-2">→ <%= user.reason %></p>
+  <% end %>
+
+  <% if user.respond_to?(:display_score) && user.display_score %>
+    <% quality = (user.display_score * 100) %>
+    <div class="mt-2 mb-3">
+      <div class="flex justify-between items-center mb-1">
+        <span class="text-[10px] font-mono text-text-muted uppercase tracking-widest">Eşleşme Kalitesi</span>
+        <span class="text-[10px] font-mono text-text-secondary" style="font-variant-numeric: tabular-nums;">%<%= quality.round %></span>
+      </div>
+      <div class="rounded-full overflow-hidden" style="height: 6px; background-color: var(--border-subtle);">
+        <div class="h-full rounded-full" style="width: <%= quality.round(1) %>%; background-color: var(--chart-1);"></div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="flex flex-wrap gap-2">
+    <% user.skills.each do |skill| %>
+      <span class="text-[10px] font-mono border border-border-subtle bg-surface-2 dark:bg-transparent text-text-secondary px-2 py-0.5"><span class="text-accent">></span> <%= skill.name %></span>
+    <% end %>
+  </div>
+</div>

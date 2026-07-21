@@ -1,0 +1,56 @@
+<%# /rooms/:slug sag kenar cubugu: kullanicinin son konustugu DM kisileri (avatar +
+    isim), en ust'te client-side arama kutusu. Bir kisiye tiklaninca o kisiyle olan
+    sohbete (room_path) tam sayfa gidilir. Yerel: dm_rooms, active_room. %>
+<aside data-controller="contact-search"
+       class="flex flex-col bg-terminal-bg-2 border border-terminal-border shadow-2xl h-full min-h-0 overflow-hidden">
+  <div class="bg-terminal-bg-3 border-b border-terminal-border px-4 py-3">
+    <span class="text-xs text-terminal-text-muted font-mono tracking-widest uppercase">Kişiler</span>
+  </div>
+
+  <!-- Arama kutusu -->
+  <div class="border-b border-terminal-border p-3">
+    <div class="flex items-center gap-2 bg-terminal-bg border border-terminal-border rounded px-2 py-1.5">
+      <span class="text-prompt-color font-mono text-xs" aria-hidden="true">⌕</span>
+      <input type="text" data-contact-search-target="input" data-action="input->contact-search#filter"
+             autocomplete="off" placeholder="Kişilerde ara..." aria-label="Kişilerde ara"
+             class="w-full bg-transparent border-none text-terminal-text focus:outline-none focus:ring-0 font-mono text-xs placeholder:text-terminal-text-muted">
+    </div>
+  </div>
+
+  <!-- Kisi listesi -->
+  <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-2 flex flex-col gap-1">
+    <% if dm_rooms.blank? %>
+      <div class="flex-1 flex items-center justify-center text-center px-3 py-6 text-[11px] font-mono text-terminal-text-muted">
+        Henüz özel mesajın yok.
+      </div>
+    <% else %>
+      <% dm_rooms.each do |room| %>
+        <% other = room.other_participant(current_user) %>
+        <% next if other.nil? %>
+        <% unread = room.unread_count_for(current_user) %>
+        <% is_active = active_room && room.id == active_room.id %>
+        <div data-contact-search-target="item" data-name="<%= other.name %>">
+          <%= link_to room_path(room.slug),
+                class: "flex items-center gap-2 px-2 py-2 rounded border transition-colors " +
+                  (is_active ? "border-emerald-500/60 bg-emerald-950/20" : "border-transparent hover:border-terminal-border hover:bg-terminal-bg-3") do %>
+            <% if other.avatar_url.present? %>
+              <img src="<%= other.avatar_url %>" alt="<%= other.name %>"
+                   class="w-8 h-8 rounded-full border border-terminal-border object-cover shrink-0">
+            <% else %>
+              <span class="w-8 h-8 rounded-full bg-surface-3 border border-terminal-border flex items-center justify-center text-text-secondary uppercase text-[11px] shrink-0">
+                <%= other.name.to_s.first %>
+              </span>
+            <% end %>
+            <span class="flex-1 min-w-0 truncate text-xs font-mono normal-case <%= is_active ? "text-emerald-400" : "text-terminal-text" %>"><%= other.name %></span>
+            <% if unread > 0 %>
+              <span class="shrink-0 min-w-[1.25rem] h-5 px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">+<%= unread %></span>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+      <div data-contact-search-target="empty" class="hidden px-3 py-6 text-center text-[11px] font-mono text-terminal-text-muted">
+        Eşleşen kişi yok.
+      </div>
+    <% end %>
+  </div>
+</aside>

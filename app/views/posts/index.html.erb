@@ -1,0 +1,156 @@
+<style>
+  /* Yeni post kartlari icin yumusak fade-in (ani belirme olmasin). */
+  @keyframes postFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .post-card {
+    animation: postFadeIn 0.45s ease both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .post-card { animation: none; }
+  }
+
+  /* Yukari cik butonu: varsayilan gizli, is-visible ile yumusak belirir. */
+  .scroll-top-btn {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.9);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .scroll-top-btn.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+</style>
+
+<%
+  # Pill linkleri icin yardimci: mevcut filtre parametrelerini koru, birini degistir.
+  base_params = { q: params[:q].presence, sort: @sort, range: @range }.compact
+  sort_options  = [ [ "En son", "recent" ], [ "En çok beğenilen", "most_liked" ], [ "En çok paylaşılan", "most_reposted" ] ]
+  range_options = [ [ "Tümü", "all" ], [ "Bugün", "today" ], [ "Bu hafta", "week" ], [ "Bu ay", "month" ] ]
+%>
+
+<div class="min-h-screen bg-surface-0 text-text-primary px-4 md:px-8 py-8 font-sans"
+     data-controller="infinite-scroll">
+  <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_18rem] gap-8 items-start">
+
+    <!-- ANA SUTUN -->
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-border-subtle pb-4">
+        <h1 class="text-2xl font-bold tracking-tight text-text-primary dark:text-accent-fg">
+          <% if @skill %>
+            <span class="text-accent">#<%= @skill.name %></span> Akışı
+          <% else %>
+            Ağ Akışı
+          <% end %>
+        </h1>
+        <% if @skill %>
+          <%= link_to "← Tüm akış", posts_path, class: "text-xs font-mono text-text-muted hover:text-accent transition-colors" %>
+        <% else %>
+          <%= link_to "← Panele dön", root_path, class: "text-xs font-mono text-text-muted hover:text-accent transition-colors" %>
+        <% end %>
+      </div>
+
+      <!-- ARAMA + FILTRE CUBUGU (yalnizca ana akista) -->
+      <% if @skill.nil? %>
+        <div class="bg-surface-1 border border-border-subtle rounded-xl p-4 shadow-sm dark:shadow-none flex flex-col gap-3">
+          <%= form_with url: posts_path, method: :get, class: "flex gap-2" do |form| %>
+            <div class="relative flex-1 min-w-0">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </span>
+              <%= text_field_tag :q, params[:q],
+                    placeholder: "Users:ayberk tag:react,laravel serbest metin…",
+                    class: "w-full bg-surface-2 dark:bg-terminal-bg border border-border-subtle rounded-lg pl-9 pr-3 py-2 text-xs font-mono text-text-primary focus:border-accent focus:outline-none transition-colors",
+                    autocomplete: "off" %>
+            </div>
+            <%= form.submit "Ara", class: "bg-accent/10 text-accent border border-accent/30 px-4 py-2 rounded-lg text-xs font-mono cursor-pointer hover:bg-accent/20 transition-all" %>
+            <% if params[:q].present? %>
+              <%= link_to "Temizle", posts_path(sort: @sort, range: @range), class: "px-3 py-2 rounded-lg text-xs font-mono text-text-muted hover:text-status-err transition-colors self-center" %>
+            <% end %>
+          <% end %>
+
+          <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] font-mono text-text-muted tracking-widest">SIRALA</span>
+              <div class="flex flex-wrap gap-1">
+                <% sort_options.each do |label, value| %>
+                  <%= link_to label, posts_path(base_params.merge(sort: value)),
+                        class: "px-2.5 py-1 rounded-full text-[11px] font-mono border transition-all #{@sort == value ? 'bg-accent/15 text-accent border-accent/40' : 'text-text-muted border-border-subtle hover:border-accent/40 hover:text-accent'}" %>
+                <% end %>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] font-mono text-text-muted tracking-widest">ZAMAN</span>
+              <div class="flex flex-wrap gap-1">
+                <% range_options.each do |label, value| %>
+                  <%= link_to label, posts_path(base_params.merge(range: value)),
+                        class: "px-2.5 py-1 rounded-full text-[11px] font-mono border transition-all #{@range == value ? 'bg-accent/15 text-accent border-accent/40' : 'text-text-muted border-border-subtle hover:border-accent/40 hover:text-accent'}" %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- SABIT POST OLUSTUR (yalnizca akis sayfasinda, en ustte) -->
+      <% if current_user && @skill.nil? %>
+        <%= render "posts/compose" %>
+      <% end %>
+
+      <!-- POST LISTESI -->
+      <div id="posts-list" class="flex flex-col gap-4">
+        <% if @posts.any? %>
+          <% @posts.each do |post| %>
+            <%= render "posts/post", post: post %>
+          <% end %>
+        <% else %>
+          <div id="feed-empty" class="text-text-muted font-mono text-xs italic py-8 text-center">
+            <% if params[:q].present? %>
+              Bu aramaya uygun post bulunamadı.
+            <% else %>
+              Ağda henüz bir durum raporu yayınlanmadı.
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- INFINITE SCROLL SENTINEL -->
+      <%= render "posts/sentinel", next_page: @next_page %>
+    </div>
+
+    <!-- SAG SIDEBAR -->
+    <aside class="flex flex-col gap-6 lg:sticky lg:top-20">
+      <!-- TREND ETIKETLER -->
+      <div class="bg-surface-1 border border-border-subtle rounded-xl p-4 shadow-sm dark:shadow-none">
+        <h2 class="text-xs font-mono text-accent mb-3 tracking-widest">&gt; TREND ETİKETLER</h2>
+        <% if @trending_tags&.any? %>
+          <div class="flex flex-col gap-1">
+            <% @trending_tags.each_with_index do |skill, i| %>
+              <%= link_to tag_posts_path(tag: skill.name),
+                    class: "group flex items-center justify-between px-2 py-1 rounded hover:bg-accent/10 transition-colors #{@skill&.id == skill.id ? 'bg-accent/10' : ''}" do %>
+                <span class="font-mono text-xs text-text-secondary group-hover:text-accent transition-colors">
+                  <span class="text-text-muted">#<%= i + 1 %></span>
+                  #<%= skill.name %>
+                </span>
+              <% end %>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-[10px] font-mono text-text-muted italic">Henüz trend etiket yok.</p>
+        <% end %>
+      </div>
+    </aside>
+  </div>
+
+  <!-- YUKARI CIK BUTONU (sadece akis sayfasinda) -->
+  <button type="button"
+          data-controller="scroll-to-top"
+          data-action="click->scroll-to-top#top"
+          class="scroll-top-btn fixed bottom-6 right-6 z-40 p-3 rounded-full bg-accent text-white shadow-lg hover:scale-110 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          aria-label="Sayfanın başına dön">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+  </button>
+</div>

@@ -1,0 +1,89 @@
+<% content_for :title, "Bildirimler" %>
+<div class="max-w-3xl mx-auto px-4 py-6 font-mono">
+  <div class="flex items-center justify-between border-b border-border-subtle pb-3 mb-4">
+    <h1 class="text-lg font-semibold text-text-primary">&gt; TÜM_BİLDİRİMLER</h1>
+    <span class="text-xs text-text-muted"><%= @total %> kayıt</span>
+  </div>
+
+  <% if @notifications.empty? %>
+    <p class="text-sm text-text-muted italic py-8 text-center">Henüz hiç bildirimin yok.</p>
+  <% else %>
+    <div class="border border-border-subtle rounded divide-y divide-border-subtle bg-surface-1">
+      <% @notifications.each do |notification| %>
+        <% post = notification.post %>
+        <div class="p-3 text-xs">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-text-secondary leading-relaxed">
+                <span class="text-accent font-bold"><%= post.user.name %></span>
+                bir post yayınladı:
+                <% if notification.skill %>
+                  <span class="text-accent">&gt; <%= notification.skill.name %></span> ilgini çekebilir
+                <% else %>
+                  ilgini çekebilir
+                <% end %>
+              </p>
+              <p class="text-text-muted mt-1 italic"><%= truncate(post.content, length: 100) %></p>
+              <p class="text-[10px] text-text-muted mt-1"><%= notification.created_at.strftime("%d.%m.%Y %H:%M") %></p>
+            </div>
+            <div class="shrink-0 text-right">
+              <% if notification.claimed_at.present? %>
+                <span class="text-[10px] text-accent border border-accent/40 rounded px-1.5 py-0.5">ilgilenildi</span>
+              <% elsif notification.dismissed_at.present? %>
+                <span class="text-[10px] text-text-muted border border-border-subtle rounded px-1.5 py-0.5">kapatıldı</span>
+              <% else %>
+                <span class="text-[10px] text-status-ok border border-status-ok/40 rounded px-1.5 py-0.5">aktif</span>
+              <% end %>
+            </div>
+          </div>
+          <div class="mt-2">
+            <%= link_to "Postu gör →", post_path(post), class: "text-[10px] text-accent hover:underline" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <% if @page > 1 || @next_page %>
+      <div class="flex items-center justify-between mt-4 text-xs">
+        <% if @page > 1 %>
+          <%= link_to "← Önceki", notifications_path(page: @page - 1), class: "text-accent hover:underline" %>
+        <% else %>
+          <span></span>
+        <% end %>
+        <span class="text-text-muted">Sayfa <%= @page %></span>
+        <% if @next_page %>
+          <%= link_to "Sonraki →", notifications_path(page: @next_page), class: "text-accent hover:underline" %>
+        <% else %>
+          <span></span>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%# Kapattigin genel admin duyurulari — icerik silinmez, sadece banner'dan
+      kapatilir; gecmisleri burada ayri, net etiketli bir bolumde kalir. %>
+  <%
+    dismissed_broadcasts = AdminBroadcast.joins(:admin_broadcast_dismissals)
+                                          .where(admin_broadcast_dismissals: { user_id: current_user.id })
+                                          .includes(:admin)
+                                          .order(created_at: :desc)
+  %>
+  <% if dismissed_broadcasts.any? %>
+    <div class="mt-8">
+      <div class="flex items-center justify-between border-b border-border-subtle pb-3 mb-4">
+        <h2 class="text-sm font-semibold text-text-primary">&gt; GEÇMİŞ_DUYURULAR (kapattıkların)</h2>
+        <span class="text-xs text-text-muted"><%= dismissed_broadcasts.size %> kayıt</span>
+      </div>
+      <div class="border border-border-subtle rounded divide-y divide-border-subtle bg-surface-1">
+        <% dismissed_broadcasts.each do |broadcast| %>
+          <div class="p-3 text-xs">
+            <p class="text-text-secondary leading-relaxed break-words"><%= broadcast.message %></p>
+            <p class="text-[10px] text-text-muted mt-1">
+              DUYURU — <%= broadcast.admin.name %> · <%= broadcast.created_at.strftime("%d.%m.%Y %H:%M") %>
+            </p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

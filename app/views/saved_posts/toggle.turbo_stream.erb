@@ -1,0 +1,4 @@
+<%# Kaydet degistikten sonra yalnizca ilgili postun etkilesim cubugunu tazele. %>
+<%= turbo_stream.replace "post_#{@post.id}_interactions" do %>
+  <%= render "posts/interactions", post: @post %>
+<% end %>

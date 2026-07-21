@@ -1,0 +1,125 @@
+<div class="max-w-5xl mx-auto px-4 py-4 space-y-8">
+  <section>
+    <h2 class="text-sm font-mono text-accent tracking-widest mb-1">&gt; KULLANICI_ARAMA</h2>
+    <p class="text-[11px] font-mono text-text-muted mb-4">Kullanıcıları ara, filtrele ve moderasyon işlemleri uygula.</p>
+
+    <div class="tt-surface rounded-xl p-4 border border-border-subtle mb-6">
+      <%= form_with url: admin_users_path, method: :get, class: "flex flex-wrap items-center gap-2" do %>
+        <input type="text" name="q" value="<%= @q %>" placeholder="İsim, e-posta veya GitHub kullanıcı adı..."
+               class="flex-1 min-w-[200px] bg-surface-1 border border-border-subtle text-xs font-mono px-2 py-1.5 rounded text-text-primary focus:border-accent focus:outline-none" />
+        <select name="filter" onchange="this.form.requestSubmit()"
+                class="bg-surface-1 border border-border-subtle text-xs font-mono px-2 py-1.5 rounded text-text-primary focus:border-accent focus:outline-none">
+          <option value="" <%= "selected" if @filter.blank? %>>Tümü</option>
+          <option value="admin" <%= "selected" if @filter == "admin" %>>Admin</option>
+          <option value="moderator" <%= "selected" if @filter == "moderator" %>>Moderatör</option>
+          <option value="member" <%= "selected" if @filter == "member" %>>Üye</option>
+          <option value="banned" <%= "selected" if @filter == "banned" %>>Banlı</option>
+          <option value="muted" <%= "selected" if @filter == "muted" %>>Susturulmuş</option>
+        </select>
+        <button type="submit" class="bg-accent/10 text-accent border border-accent/30 px-4 py-1.5 rounded text-xs font-mono cursor-pointer hover:bg-accent/20 transition-all">Ara</button>
+      <% end %>
+    </div>
+
+    <div class="tt-surface rounded-xl p-4 border border-border-subtle">
+      <p class="text-[10px] font-mono text-text-muted tracking-widest mb-3"><%= @total %> KULLANICI BULUNDU · SAYFA <%= @page %></p>
+
+      <div class="border border-border-subtle rounded overflow-x-auto">
+        <table class="w-full text-xs font-mono">
+          <thead class="bg-surface-2 text-text-muted">
+            <tr>
+              <th class="text-left px-3 py-2">Kullanıcı</th>
+              <th class="text-left px-3 py-2">İletişim</th>
+              <th class="text-left px-3 py-2">Rol</th>
+              <th class="text-left px-3 py-2">Durum</th>
+              <th class="text-left px-3 py-2">İşlemler</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border-subtle">
+            <% @users.each do |user| %>
+              <tr class="even:bg-surface-1/50 align-top">
+                <td class="px-3 py-2 text-text-secondary">
+                  <%= link_to user.name.presence || "(isimsiz)", public_profile_path(user.id), class: "text-accent hover:underline" %>
+                </td>
+                <td class="px-3 py-2 text-text-muted">
+                  <div><%= user.email.presence || "—" %></div>
+                  <% if user.github_username.present? %>
+                    <div class="text-[10px]">@<%= user.github_username %></div>
+                  <% end %>
+                </td>
+                <td class="px-3 py-2 text-text-secondary">
+                  <%= case user.role
+                      when "admin" then "Admin"
+                      when "moderator" then "Moderatör"
+                      else "Üye"
+                      end %>
+                </td>
+                <td class="px-3 py-2">
+                  <div class="flex flex-wrap gap-1 items-center">
+                    <% if user.protected_from_moderation? %>
+                      <span class="text-[10px] text-accent border border-accent/40 rounded px-1" title="Bu hesap moderasyondan korunuyor">korumalı</span>
+                    <% end %>
+                    <% if user_banned?(user) %>
+                      <span class="text-[10px] text-red-400 border border-red-700 rounded px-1" title="Bu hesap yasaklı">banlı</span>
+                    <% end %>
+                    <% if user_muted?(user) %>
+                      <span class="text-[10px] text-yellow-400 border border-yellow-600/50 rounded px-1" title="Bu hesap susturulmuş">susturulmuş</span>
+                    <% end %>
+                    <% if user.is_online %>
+                      <span class="inline-flex items-center gap-1 text-[10px] text-status-ok" title="Çevrimiçi">
+                        <span class="w-1.5 h-1.5 rounded-full bg-status-ok inline-block"></span>online
+                      </span>
+                    <% end %>
+                  </div>
+                </td>
+                <td class="px-3 py-2">
+                  <% if user.protected_from_moderation? %>
+                    <span class="text-[10px] text-text-muted italic">moderasyon kapalı</span>
+                  <% else %>
+                    <% if user_muted?(user) %>
+                      <span class="text-[10px] text-text-muted italic px-2 py-1">zaten susturulmuş</span>
+                    <% else %>
+                      <%= form_with url: mutes_path, method: :post, class: "flex flex-wrap items-center gap-1" do %>
+                        <input type="hidden" name="user_id" value="<%= user.id %>" />
+                        <select name="duration_minutes" class="bg-surface-1 border border-border-subtle text-[10px] font-mono px-1 py-1 rounded text-text-primary focus:border-accent focus:outline-none">
+                          <option value="15">15 dakika</option>
+                          <option value="30">30 dakika</option>
+                          <option value="60" selected>1 saat</option>
+                          <option value="360">6 saat</option>
+                          <option value="1440">24 saat</option>
+                          <option value="10080">1 hafta</option>
+                        </select>
+                        <input type="text" name="reason" value="moderatör tarafından susturuldu"
+                               class="bg-surface-1 border border-border-subtle text-[10px] font-mono px-1 py-1 rounded text-text-primary w-32 focus:border-accent focus:outline-none" />
+                        <button type="submit" class="bg-yellow-900/20 border border-yellow-700/60 text-yellow-400 text-xs font-mono px-3 py-1 rounded hover:bg-yellow-900/40">Sustur</button>
+                      <% end %>
+                    <% end %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+
+            <% if @users.empty? %>
+              <tr><td colspan="5" class="px-3 py-4 text-center text-text-muted">Kullanıcı bulunamadı.</td></tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex items-center justify-between mt-4 text-xs font-mono">
+        <% if @page > 1 %>
+          <%= link_to "&lt; Geri".html_safe, admin_users_path(q: @q, filter: @filter, page: @page - 1),
+                class: "text-accent hover:underline" %>
+        <% else %>
+          <span class="text-text-muted opacity-40">&lt; Geri</span>
+        <% end %>
+
+        <% if @next_page %>
+          <%= link_to "İleri &gt;".html_safe, admin_users_path(q: @q, filter: @filter, page: @next_page),
+                class: "text-accent hover:underline" %>
+        <% else %>
+          <span class="text-text-muted opacity-40">İleri &gt;</span>
+        <% end %>
+      </div>
+    </div>
+  </section>
+</div>

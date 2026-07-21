@@ -1,0 +1,63 @@
+<% content_for :title, "Şikayetlerim" %>
+<%
+  status_labels = {
+    "pending"   => "Beklemede",
+    "reviewed"  => "İncelendi",
+    "actioned"  => "İşlem Yapıldı",
+    "dismissed" => "Reddedildi"
+  }
+  # Durum rozet renkleri — uygulamanin --status-* ozel ozellikleriyle uyumlu.
+  status_styles = {
+    "pending"   => "color: var(--status-warn); border-color: var(--status-warn); background-color: color-mix(in srgb, var(--status-warn) 12%, transparent);",
+    "reviewed"  => "color: var(--accent); border-color: var(--accent); background-color: color-mix(in srgb, var(--accent) 12%, transparent);",
+    "actioned"  => "color: var(--status-ok); border-color: var(--status-ok); background-color: color-mix(in srgb, var(--status-ok) 12%, transparent);",
+    "dismissed" => "color: var(--text-muted); border-color: var(--text-muted); background-color: color-mix(in srgb, var(--text-muted) 12%, transparent);"
+  }
+%>
+<div class="max-w-3xl mx-auto px-4 py-6 font-mono">
+  <div class="flex items-center justify-between border-b border-border-subtle pb-3 mb-4">
+    <h1 class="text-lg font-semibold text-text-primary">&gt; ŞİKAYETLERİM</h1>
+    <span class="text-xs text-text-muted"><%= @complaints.size %> kayıt</span>
+  </div>
+
+  <% if @complaints.empty? %>
+    <p class="text-sm text-text-muted italic py-8 text-center">Henüz hiç şikayet oluşturmadın.</p>
+  <% else %>
+    <div class="border border-border-subtle rounded overflow-x-auto bg-surface-1">
+      <table class="w-full text-xs">
+        <thead class="bg-surface-2 text-text-muted">
+          <tr>
+            <th class="text-left px-3 py-2">Hedef</th>
+            <th class="text-left px-3 py-2">Açıklama</th>
+            <th class="text-left px-3 py-2">Durum</th>
+            <th class="text-left px-3 py-2">Tarih</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border-subtle">
+          <% @complaints.each do |complaint| %>
+            <tr class="even:bg-surface-1/50 align-top">
+              <td class="px-3 py-2 text-text-secondary">
+                <%= link_to complaint.target_user.name.presence || "(isimsiz)",
+                      public_profile_path(complaint.target_user.id),
+                      class: "text-accent hover:underline" %>
+              </td>
+              <td class="px-3 py-2 text-text-muted italic max-w-xs">
+                <%= truncate(complaint.description, length: 80) %>
+              </td>
+              <td class="px-3 py-2">
+                <% status = complaint.status.presence || "pending" %>
+                <span class="inline-flex items-center text-[10px] px-2 py-0.5 rounded-full border tracking-wider"
+                      style="<%= status_styles[status] %>">
+                  <%= status_labels[status] || status %>
+                </span>
+              </td>
+              <td class="px-3 py-2 text-[10px] text-text-muted whitespace-nowrap">
+                <%= complaint.created_at.strftime("%d.%m.%Y %H:%M") %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

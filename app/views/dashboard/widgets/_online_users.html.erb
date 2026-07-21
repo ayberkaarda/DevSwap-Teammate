@@ -1,0 +1,57 @@
+<%
+  # Canli guncellenen "Cevrimici" widget'i.
+  #
+  # Iki render yolu vardir:
+  #   1) Sayfa yuklemesinde (dashboard/index) — `widget` locali gecilir, `current_user`
+  #      helper'dan gelir.
+  #   2) Turbo Stream yayininda (User.broadcast_online_users_change) — `current_user`
+  #      LOCAL olarak gecilir (helper'i golgeler), `widget` GECILMEZ.
+  # Bu yuzden `widget` local_assigns'ten opsiyonel okunur; yoksa widget tipine geri
+  # dusulur.
+  #
+  # HER izleyici KENDISINI listeden HARIC tutar; bu yuzden yayin per-user stream'e
+  # ("online_users_for_<id>") izleyicinin kendi bakisiyla yapilir — tek global partial
+  # herkese gonderilemez.
+  widget_type = local_assigns[:widget]&.widget_type || "online_users"
+  others_online = User.where(is_online: true).where.not(id: current_user.id)
+  online_count = others_online.count
+  online_users = others_online.limit(6)
+%>
+<div id="online_users_widget_<%= current_user.id %>"
+     class="h-full border border-border-subtle bg-surface-1 p-4 font-mono text-xs text-text-muted flex flex-col"
+     style="font-size: calc(1em * var(--widget-font-scale, 1));"
+     data-widget-type="<%= widget_type %>">
+  <%# Bu izleyicinin per-user stream'ine abone ol. Abonelik target div'in ICINDE oldugundan
+      her replace'te temizce swap edilir (birikimli <turbo-cable-stream-source> olmaz). %>
+  <%= turbo_stream_from "online_users_for_#{current_user.id}" %>
+
+  <div class="flex items-center justify-between mb-3">
+    <span class="text-accent tracking-widest uppercase">Çevrimiçi</span>
+    <span class="flex items-center gap-1.5 text-text-secondary">
+      <span class="w-2 h-2 rounded-full bg-status-ok animate-pulse"></span>
+      <%= online_count %>
+    </span>
+  </div>
+
+  <div class="flex-1 flex flex-col gap-1.5 overflow-hidden">
+    <% if online_users.empty? %>
+      <div class="flex-1 flex items-center justify-center text-text-muted">
+        Şu an kimse çevrimiçi değil.
+      </div>
+    <% else %>
+      <% online_users.each do |user| %>
+        <%= link_to public_profile_path(user.id),
+                    class: "flex items-center gap-2 hover:text-accent transition-colors" do %>
+          <% if user.avatar_url.present? %>
+            <img src="<%= user.avatar_url %>" class="w-5 h-5 rounded-full shrink-0" alt="">
+          <% else %>
+            <span class="w-5 h-5 rounded-full bg-surface-3 flex items-center justify-center text-text-secondary uppercase shrink-0">
+              <%= user.name.to_s.first %>
+            </span>
+          <% end %>
+          <span class="truncate text-text-secondary"><%= user.name %></span>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

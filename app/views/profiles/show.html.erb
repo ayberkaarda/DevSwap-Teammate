@@ -1,0 +1,181 @@
+<% is_owner = current_user.present? && current_user.id == @profile_user.id %>
+<% is_other_viewer = current_user.present? && current_user.id != @profile_user.id %>
+
+<div class="min-h-screen bg-surface-0 text-text-primary px-4 sm:px-8 pb-16 font-sans">
+
+  <%# ======================================================================
+      SABİT (Facebook tarzı) PROFİL BAŞLIĞI — banner + üste taşan avatar +
+      isim/rol + takipçi/takip sayıları + aksiyon butonları. Widget ızgarasının
+      ÜSTÜNDE, ızgaradan bağımsız durur. (identity widget'ı artık yalnızca
+      biyo/durum/format taşıyan ince bir karttır.)
+      ====================================================================== %>
+  <div class="max-w-5xl mx-auto pt-6">
+
+    <%# --- Kapak fotoğrafı + üste binen avatar --- %>
+    <div class="relative">
+      <% if @profile_user.banner_image.attached? %>
+        <%= image_tag @profile_user.banner_image,
+              class: "w-full aspect-[3/1] object-cover rounded-t-xl border border-border-subtle",
+              alt: "#{@profile_user.name} kapak fotoğrafı" %>
+      <% else %>
+        <%# Banner yoksa: CSS custom property tabanlı degrade yer tutucu. %>
+        <div class="w-full aspect-[3/1] rounded-t-xl border border-border-subtle"
+             style="background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 70%, transparent) 0%, color-mix(in srgb, var(--chart-1) 70%, transparent) 100%);"
+             aria-hidden="true"></div>
+      <% end %>
+
+      <%# Avatar: banner'ın sol-alt köşesine üste binerek konumlanır; yüksek
+          stacking (z-10) ile asla banner tarafından örtülmez. %>
+      <div class="absolute -bottom-12 left-6 z-10">
+        <% if @profile_user.avatar_url.present? %>
+          <img src="<%= @profile_user.avatar_url %>" alt="<%= @profile_user.name %>"
+               class="w-24 h-24 rounded-full object-cover border-4 shadow-lg"
+               style="border-color: var(--surface-0); background-color: var(--surface-2);" />
+        <% else %>
+          <div class="w-24 h-24 rounded-full border-4 shadow-lg flex items-center justify-center text-3xl font-bold text-accent"
+               style="border-color: var(--surface-0); background-color: var(--surface-2);">
+            <%= @profile_user.name.to_s.first&.upcase || "?" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# --- Başlık gövdesi: isim/rol/sayaçlar (sol) + aksiyonlar (sağ) --- %>
+    <div class="bg-surface-1 border-x border-b border-border-subtle rounded-b-xl pt-16 pb-4 px-6 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight text-text-primary dark:text-accent-fg"><%= @profile_user.name %></h1>
+        <p class="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mt-1"><%= @profile_user.role || "DEVELOPER" %></p>
+
+        <div class="flex items-center gap-4 mt-3 text-sm">
+          <a href="<%= public_profile_followers_path(@profile_user) %>" class="hover:text-accent transition-colors">
+            <span class="font-bold text-text-primary" style="font-variant-numeric: tabular-nums;"><%= @profile_user.followers_count %></span>
+            <span class="text-text-muted">takipçi</span>
+          </a>
+          <a href="<%= public_profile_following_path(@profile_user) %>" class="hover:text-accent transition-colors">
+            <span class="font-bold text-text-primary" style="font-variant-numeric: tabular-nums;"><%= @profile_user.following_count %></span>
+            <span class="text-text-muted">takip</span>
+          </a>
+        </div>
+      </div>
+
+      <%# Aksiyon butonları: yalnızca giriş yapmış ve BAŞKASININ profiline bakan
+          ziyaretçiye gösterilir. %>
+      <% if is_other_viewer %>
+        <div class="flex flex-wrap items-center gap-2">
+          <% if current_user.following?(@profile_user) %>
+            <%= button_to "Takibi Bırak", toggle_follow_path, method: :post,
+                  params: { target_user_id: @profile_user.id },
+                  class: "text-sm bg-surface-2 hover:bg-surface-1 border border-border-subtle text-text-secondary font-mono px-4 py-2 rounded transition" %>
+          <% else %>
+            <%= button_to "Takip Et", toggle_follow_path, method: :post,
+                  params: { target_user_id: @profile_user.id },
+                  class: "text-sm bg-accent/10 hover:bg-accent/20 border border-accent/30 text-accent font-mono px-4 py-2 rounded transition" %>
+          <% end %>
+
+          <%# Profilden açılan DM "direct" kaynaklıdır (eşleşme değil). %>
+          <%= button_to "Sohbet Aç", start_dm_room_path(user_id: @profile_user.id), method: :post,
+                params: { origin: "direct" },
+                class: "text-sm bg-accent/10 hover:bg-accent/20 border border-accent/30 text-accent font-mono px-4 py-2 rounded transition" %>
+
+          <%# Uc-nokta menu: sikayet + engelleme. Ana aksiyonlardan (Takip Et,
+              Sohbet Ac) ayri, ikincil/moderasyon aksiyonlari barindirir. %>
+          <div class="inline-block" data-controller="report-modal">
+            <details class="relative font-mono">
+              <summary class="list-none cursor-pointer select-none w-9 h-9 flex items-center justify-center rounded-full border border-border-subtle text-text-muted hover:bg-surface-2 hover:text-accent transition-colors" aria-label="Profil menüsü">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+              </summary>
+              <div class="absolute right-0 mt-1 w-52 z-40 bg-surface-1 border border-border-subtle rounded shadow-2xl overflow-hidden text-xs">
+                <button type="button"
+                        data-action="report-modal#openFromButton"
+                        data-report-modal-username-param="<%= @profile_user.name %>"
+                        class="block w-full text-left px-3 py-2 hover:bg-surface-2 text-status-warn hover:text-status-warn transition-colors cursor-pointer">
+                  Şikayet Et
+                </button>
+                <% existing_block = current_user.blocks_made.find_by(blocked_id: @profile_user.id) %>
+                <% if existing_block %>
+                  <%= button_to block_path(existing_block), method: :delete,
+                        form: { class: "block" },
+                        class: "w-full text-left px-3 py-2 hover:bg-surface-2 text-text-muted hover:text-status-err transition-colors cursor-pointer" do %>
+                    Engeli Kaldır
+                  <% end %>
+                <% else %>
+                  <%= button_to blocks_path, params: { blocked_id: @profile_user.id }, method: :post,
+                        form: { class: "block" },
+                        data: { turbo_confirm: "Bu kullanıcıyı engellemek istediğine emin misin? Artık birbirinizin postlarını/profillerini göremeyeceksiniz." },
+                        class: "w-full text-left px-3 py-2 hover:bg-surface-2 text-text-muted hover:text-status-err transition-colors cursor-pointer" do %>
+                    Engelle
+                  <% end %>
+                <% end %>
+              </div>
+            </details>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ======================================================================
+      PROFİL WIDGET IZGARASI (Gridstack) — dashboard ızgarasıyla ANALOG ama AYRI
+      (PATCH'ler /profile_widgets/* uçlarına gider). Controller HER ziyaretçide
+      bağlanır (Gridstack olmadan widget'lar üst üste yığılırdı); ancak edit
+      araç çubuğu / edit chrome YALNIZCA sahibe render edilir → başkaları için
+      ızgara tamamen salt-okunur.
+      ====================================================================== %>
+  <div class="max-w-5xl mx-auto mt-8" data-controller="profile-grid">
+
+    <% if is_owner %>
+      <div class="flex items-center justify-end gap-2 mb-4">
+        <button type="button"
+                data-action="profile-grid#toggleEdit"
+                data-profile-grid-target="editButton"
+                class="text-sm bg-accent/10 hover:bg-accent/20 border border-accent/30 text-accent font-mono px-4 py-2 rounded transition">
+          Düzenle
+        </button>
+        <%= button_to "Varsayılana Dön", reset_profile_widgets_path, method: :post,
+              class: "text-sm bg-surface-1 hover:bg-surface-2 border border-border-subtle text-text-secondary font-mono px-4 py-2 rounded transition",
+              data: { turbo_confirm: "Profil yerleşimini varsayılana sıfırlamak istediğine emin misin? Şu anki düzenin kaybolacak." } %>
+      </div>
+
+      <%# Gizli widget'lar: edit modunda görünür; "Göster" ile geri eklenir. %>
+      <div data-profile-grid-target="hiddenList"
+           class="hidden mb-4 p-3 bg-surface-1 border border-border-subtle rounded">
+        <span class="text-[10px] font-mono text-text-muted uppercase tracking-widest mr-2">Gizli:</span>
+        <% hidden_widgets = @profile_widgets.reject(&:visible) %>
+        <% if hidden_widgets.empty? %>
+          <span class="text-[10px] font-mono text-text-muted italic">Gizli widget yok.</span>
+        <% else %>
+          <% hidden_widgets.each do |widget| %>
+            <button type="button"
+                    data-action="profile-grid#showWidget"
+                    data-widget-id="<%= widget.id %>"
+                    class="text-[10px] font-mono border border-border-subtle bg-surface-2 text-text-secondary px-2 py-1 rounded hover:border-accent hover:text-accent transition-colors">
+              <%= widget.widget_type %> · Göster
+            </button>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="grid-stack" data-profile-grid-target="grid">
+      <% @profile_widgets.select(&:visible).each do |widget| %>
+        <div class="grid-stack-item"
+             gs-id="<%= widget.id %>"
+             gs-x="<%= widget.position_x %>"
+             gs-y="<%= widget.position_y %>"
+             gs-w="<%= widget.width %>"
+             gs-h="<%= widget.height %>">
+          <div class="grid-stack-item-content" style="--widget-font-scale: <%= widget.font_scale %>;">
+            <% if is_owner %>
+              <div class="widget-edit-chrome">
+                <button type="button" data-action="profile-grid#fontDown" title="Yazıyı küçült">A-</button>
+                <button type="button" data-action="profile-grid#fontUp" title="Yazıyı büyüt">A+</button>
+                <button type="button" data-action="profile-grid#hideWidget" title="Widget'ı gizle">Gizle</button>
+              </div>
+            <% end %>
+            <%= render "profiles/widgets/#{widget.widget_type}", profile_user: @profile_user %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

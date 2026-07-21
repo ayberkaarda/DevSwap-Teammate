@@ -1,0 +1,249 @@
+<style>
+/* Telemetri artık kendi izole light/dark paletini tanımlamıyor. Yerel değişken
+   ADLARI (.tt-* yardımcıları ve şablon içindeki inline var(--chart-1) vb. tüm
+   tüketiciler bunları kullandığı için) korunuyor; ancak DEĞERLERİ doğrudan
+   uygulamanın global custom property'lerine (application.css) bağlanıyor.
+   Böylece 11 temanın (light/dark + Dracula/Monokai/Nord/Solarized/Gruvbox/
+   OneDark/TokyoNight/Matrix) her biri kendi gerçek renk kimliğiyle otomatik
+   yansır — ayrı light/dark/media-query bloklarına gerek kalmaz, cascade halleder. */
+.telemetry-root {
+  color-scheme: light dark;
+
+  /* Global ile AYNI ada sahip değişkenler (--surface-1, --text-primary,
+     --text-secondary, --text-muted, --chart-1..4, --status-ok/warn/err) burada
+     KASITLI olarak yeniden tanımlanmıyor: `--surface-1: var(--surface-1)` bir
+     öz-referans (self-reference) döngüsü olur ve CSS bunu geçersiz sayar. Custom
+     property'ler zaten miras alındığı için bu adlar :root'tan (ve aktif temanın
+     [data-theme=...] geçersiz kılmasından) doğrudan gelir. Aşağıda yalnızca
+     global'de karşılığı farklı adla bulunan telemetriye özgü takma adlar,
+     global eşdeğerlerine bağlanır — döngü yok, tam tema uyumu var. */
+  --page-plane: var(--surface-0);            /* sayfa zemini = global sayfa arka planı */
+  --gridline: var(--border-subtle);          /* ızgara çizgileri için ince kenarlık tonu */
+  --baseline: var(--border-subtle);          /* taban çizgisi de aynı ince kenarlık tonu */
+  --border: var(--border-subtle);            /* global'de --border yok; --border-subtle */
+  --status-serious: var(--status-err);       /* global'de "serious" yok; en yakın: err */
+}
+
+.tt-surface { background-color: var(--surface-1); border: 1px solid var(--border); }
+.tt-text-primary { color: var(--text-primary); }
+.tt-text-secondary { color: var(--text-secondary); }
+.tt-text-muted { color: var(--text-muted); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .tt-value { transition: color 0.4s ease; }
+}
+</style>
+
+<div id="telemetry-widgets" class="telemetry-root p-4 md:p-6" style="background-color: var(--page-plane);">
+  <% if snapshot.nil? %>
+    <div class="tt-surface tt-text-muted rounded-xl p-8 text-center font-mono text-sm">
+      Telemetri başlatılıyor...
+    </div>
+  <% else %>
+    <div class="space-y-6">
+      <h1 class="tt-text-primary text-lg font-semibold font-mono">Telemetri Panosu</h1>
+
+      <%# 1. Stat tile row %>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="tt-surface rounded-xl p-4" data-controller="list-popover" data-list-popover-url-value="<%= telemetry_online_users_path %>">
+          <button type="button" data-action="list-popover#open" class="text-left w-full cursor-pointer" title="Çevrimiçi kullanıcıları gör">
+            <div class="tt-value tt-text-primary text-3xl font-bold" style="font-variant-numeric: tabular-nums;"><%= snapshot.online_users_count %></div>
+            <div class="tt-text-secondary text-xs mt-1">Çevrimiçi Kullanıcı</div>
+          </button>
+
+          <dialog data-list-popover-target="dialog" data-action="click->list-popover#backdrop"
+                  class="post-modal w-full max-w-sm bg-surface-1 border border-border-subtle rounded shadow-2xl">
+            <div class="flex justify-end p-2">
+              <button type="button" data-action="list-popover#close" class="text-text-muted hover:text-status-err text-sm" aria-label="Kapat">✕</button>
+            </div>
+            <div data-list-popover-target="content"></div>
+          </dialog>
+        </div>
+
+        <div class="tt-surface rounded-xl p-4">
+          <div class="tt-value tt-text-primary text-3xl font-bold" style="font-variant-numeric: tabular-nums;"><%= snapshot.messages_per_minute %></div>
+          <div class="tt-text-secondary text-xs mt-1">Mesaj / Dakika</div>
+        </div>
+
+        <%
+          queue_status =
+            if snapshot.failed_queue_jobs > 0 || snapshot.active_queue_jobs > 200
+              { color: "var(--status-err)", label: "Hatalı" }
+            elsif snapshot.active_queue_jobs.between?(50, 200) && snapshot.failed_queue_jobs == 0
+              { color: "var(--status-warn)", label: "Birikim" }
+            elsif snapshot.failed_queue_jobs == 0 && snapshot.active_queue_jobs < 50
+              { color: "var(--status-ok)", label: "Sağlıklı" }
+            else
+              { color: "var(--status-warn)", label: "Birikim" }
+            end
+        %>
+        <div class="tt-surface rounded-xl p-4" style="border-left: 4px solid <%= queue_status[:color] %>;">
+          <div class="flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full" style="background-color: <%= queue_status[:color] %>;"></span>
+            <span class="tt-text-secondary text-xs"><%= queue_status[:label] %></span>
+          </div>
+          <div class="tt-value tt-text-primary text-3xl font-bold mt-1" style="font-variant-numeric: tabular-nums;"><%= snapshot.active_queue_jobs %></div>
+          <div class="tt-text-secondary text-xs mt-1">Aktif Kuyruk İşi</div>
+        </div>
+
+        <%
+          failed_status =
+            if snapshot.failed_queue_jobs > 0
+              { color: "var(--status-err)", label: "Hatalı" }
+            else
+              { color: "var(--status-ok)", label: "Sağlıklı" }
+            end
+        %>
+        <div class="tt-surface rounded-xl p-4" style="border-left: 4px solid <%= failed_status[:color] %>;">
+          <div class="flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full" style="background-color: <%= failed_status[:color] %>;"></span>
+            <span class="tt-text-secondary text-xs"><%= failed_status[:label] %></span>
+          </div>
+          <div class="tt-value tt-text-primary text-3xl font-bold mt-1" style="font-variant-numeric: tabular-nums;"><%= snapshot.failed_queue_jobs %></div>
+          <div class="tt-text-secondary text-xs mt-1">Başarısız Kuyruk İşi</div>
+        </div>
+      </div>
+
+      <%# 2. Sparkline %>
+      <div class="tt-surface rounded-xl p-4">
+        <div class="tt-text-secondary text-xs mb-2">Mesaj / Dakika (Geçmiş)</div>
+        <%
+          values = history.map(&:messages_per_minute)
+        %>
+        <% if values.size < 2 %>
+          <div class="tt-text-muted text-sm font-mono py-4">Veri toplanıyor...</div>
+        <% else %>
+          <%
+            width = 300.0
+            height = 60.0
+            padding = 6.0
+            max_val = [values.max, 1].max
+            min_val = values.min
+            span = [max_val - min_val, 1].max
+            step_x = values.size > 1 ? (width - 2 * padding) / (values.size - 1) : 0
+
+            points = values.each_with_index.map do |v, i|
+              x = (padding + i * step_x).round(2)
+              normalized = (v - min_val).to_f / span
+              y = (height - padding - normalized * (height - 2 * padding)).round(2)
+              [x, y]
+            end
+
+            points_attr = points.map { |x, y| "#{x},#{y}" }.join(" ")
+            last_x, last_y = points.last
+          %>
+          <svg viewBox="0 0 300 60" class="w-full h-16" preserveAspectRatio="none">
+            <line x1="0" y1="15" x2="300" y2="15" stroke="var(--gridline)" stroke-width="1" />
+            <line x1="0" y1="30" x2="300" y2="30" stroke="var(--gridline)" stroke-width="1" />
+            <line x1="0" y1="45" x2="300" y2="45" stroke="var(--gridline)" stroke-width="1" />
+
+            <polyline points="<%= points_attr %>" stroke="var(--chart-1)" stroke-width="2" fill="none" />
+            <circle cx="<%= last_x %>" cy="<%= last_y %>" r="3" fill="var(--chart-1)" />
+          </svg>
+        <% end %>
+      </div>
+
+      <%# 3. Top Skills bar list %>
+      <div class="tt-surface rounded-xl p-4">
+        <div class="tt-text-secondary text-xs mb-3">En Popüler Yetenekler</div>
+        <% if snapshot.top_skills.blank? %>
+          <div class="tt-text-muted text-sm font-mono py-4">Henüz veri yok</div>
+        <% else %>
+          <%
+            # Reduced from a 5-step hardcoded blue ramp to the 4-slot shared
+            # chart token set (Adım 2). 5th+ skills wrap back to chart-1.
+            ramp = ["var(--chart-4)", "var(--chart-3)", "var(--chart-2)", "var(--chart-1)"]
+
+            max_count = snapshot.top_skills.map { |s| s["count"].to_i }.max
+            max_count = 1 if max_count.to_i <= 0
+          %>
+          <div class="space-y-2">
+            <% snapshot.top_skills.each_with_index do |skill, index| %>
+              <%
+                name = skill["name"]
+                count = skill["count"].to_i
+                bar_width = (count.to_f / max_count * 100).round(1)
+
+                color = ramp[index % ramp.size]
+              %>
+              <div class="flex items-center gap-3">
+                <div class="tt-text-primary text-xs w-24 truncate"><%= name %></div>
+                <div class="flex-1 rounded-full overflow-hidden" style="background-color: var(--gridline); height: 10px;">
+                  <div style="width: <%= bar_width %>%; height: 10px; background-color: <%= color %>;"></div>
+                </div>
+                <div class="tt-text-secondary text-xs w-8 text-right"><%= count %></div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <%# 4. GitHub scans / Embeddings generated %>
+      <div class="flex flex-wrap gap-6 tt-text-muted text-xs font-mono">
+        <div>Son 1 saatte GitHub taraması: <span class="tt-text-secondary"><%= snapshot.github_scans_last_hour %></span></div>
+        <div>Son 1 saatte oluşturulan embedding: <span class="tt-text-secondary"><%= snapshot.embeddings_generated_last_hour %></span></div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# htop-tarzı canlı sistem monitörü. Kasıtlı olarak koyu/yeşil terminal
+      (matrix / sysadmin) hissi verir — projenin genel temasından bağımsızdır.
+      local_assigns kontrolü zorunlu: partial hem ilk sayfa yüklemesinde (htop ile)
+      hem broadcast_replace_to ile (htop ile) render edilir; htop yoksa kırılmadan atlar. %>
+  <% if local_assigns[:htop].present? %>
+    <%
+      statuses = htop[:solid_queue_jobs_by_status]
+      failed_count = statuses[:failed].to_i
+      total_jobs = statuses.values.map(&:to_i).sum
+      # Cubuklar birbirine gore olceklensin (en yuksek kuyruk = %100). Boylece
+      # sabit "count*5" yerine gercek dagilim scannable olur.
+      bar_max = [ statuses.values.map(&:to_i).max, 1 ].max
+      # Failed icin renk esikleri: 0 = saglikli (yesil), 1-4 = uyari (amber), 5+ = kritik (kirmizi).
+      # Renkler yumusatildi (pure #00ff41 -> #3fb950): htop/terminal hissi korunur
+      # ama goze batmaz. Panel arka plani/kenarligi/metni artik --terminal-* temasina
+      # baglidir; boylece Dracula/Monokai/Nord'da o temanin koyu tonuna uyum saglar.
+      ok_green = "#3fb950"
+      warn_amber = "#d29922"
+      crit_red = "#f85149"
+      failed_color = failed_count.zero? ? ok_green : (failed_count < 5 ? warn_amber : crit_red)
+    %>
+    <div class="rounded-lg p-4 font-mono text-xs mt-6"
+         style="background: var(--terminal-bg); color: var(--terminal-text); border: 1px solid var(--terminal-border);">
+      <div class="flex items-center justify-between mb-3">
+        <span class="tracking-widest" style="color: <%= ok_green %>;">&gt; SYSTEM_MONITOR (htop)</span>
+        <span style="color: var(--terminal-text-muted);">TOPLAM İŞ: <%= number_with_delimiter(total_jobs) %></span>
+      </div>
+
+      <% statuses.each do |status, count| %>
+        <%
+          count = count.to_i
+          is_failed = status == :failed
+          bar_color = is_failed ? failed_color : ok_green
+          label_color = is_failed && count.positive? ? failed_color : "var(--terminal-text)"
+          bar_width = (count.to_f / bar_max * 100).round(1)
+        %>
+        <div class="flex items-center gap-2 mb-1.5" data-controller="list-popover" data-list-popover-url-value="<%= telemetry_queue_jobs_path(status: status) %>">
+          <button type="button" data-action="list-popover#open" class="w-24 shrink-0 text-left cursor-pointer hover:underline" style="color: <%= label_color %>;" title="<%= status.to_s.upcase %> işleri gör"><%= status.to_s.upcase %></button>
+          <span class="flex-1 h-3 rounded overflow-hidden" style="background: var(--terminal-bg-3); border: 1px solid var(--terminal-border);">
+            <span style="display:block; height:100%; width: <%= bar_width %>%; background: <%= bar_color %>; transition: width 0.4s ease;"></span>
+          </span>
+          <button type="button" data-action="list-popover#open" class="w-12 text-right tabular-nums cursor-pointer" style="color: <%= label_color %>; font-variant-numeric: tabular-nums;"><%= number_with_delimiter(count) %></button>
+
+          <dialog data-list-popover-target="dialog" data-action="click->list-popover#backdrop"
+                  class="post-modal w-full max-w-sm bg-surface-1 border border-border-subtle rounded shadow-2xl">
+            <div class="flex justify-end p-2">
+              <button type="button" data-action="list-popover#close" class="text-text-muted hover:text-status-err text-sm" aria-label="Kapat">✕</button>
+            </div>
+            <div data-list-popover-target="content"></div>
+          </dialog>
+        </div>
+      <% end %>
+
+      <div class="mt-3 pt-2 flex flex-wrap gap-x-6 gap-y-1"
+           style="border-top: 1px solid var(--terminal-border); color: var(--terminal-text-muted);">
+        <span>ÇEVRİMİÇİ (yaklaşık): <span style="color: <%= ok_green %>;"><%= number_with_delimiter(htop[:online_users]) %></span></span>
+        <span>EŞLEŞTİRME KUYRUĞU: <span style="color: <%= htop[:match_queue_depth].to_i.positive? ? warn_amber : ok_green %>;"><%= number_with_delimiter(htop[:match_queue_depth]) %></span></span>
+      </div>
+    </div>
+  <% end %>
+</div>

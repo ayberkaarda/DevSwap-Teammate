@@ -1,0 +1,20 @@
+<div class="h-full border border-border-subtle bg-surface-1 p-4 font-mono text-xs text-text-muted overflow-y-auto no-visible-scrollbar" data-widget-type="<%= widget.widget_type %>" style="font-size: calc(1em * var(--widget-font-scale, 1));">
+  <span class="text-accent">Son Postlar</span>
+
+  <% recent_posts = @posts.to_a.first(4) %>
+  <% if recent_posts.any? %>
+    <div class="flex flex-col gap-3 mt-3">
+      <% recent_posts.each do |post| %>
+        <%= link_to post_path(post), class: "block border-l-2 border-accent/30 pl-2 py-1 hover:border-accent hover:bg-surface-2 transition-colors" do %>
+          <div class="flex items-center justify-between gap-2 mb-0.5">
+            <span class="text-accent font-bold"><%= post.user.name %></span>
+            <span class="text-text-muted text-[10px]"><%= time_ago_in_words(post.created_at) %> önce</span>
+          </div>
+          <p class="text-text-secondary leading-relaxed"><%= truncate(post.content, length: 80) %></p>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="italic mt-2">Henüz post yok.</p>
+  <% end %>
+</div>

@@ -1,0 +1,18 @@
+<div class="min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-md bg-surface-1 border border-border-subtle dark:border-accent/30 rounded-lg shadow-xl dark:shadow-none p-8 font-mono">
+    <div class="text-accent dark:text-prompt-color text-xs tracking-widest uppercase mb-2 text-center">DevSwap // Kullanım Kuralları</div>
+    <h1 class="text-xl font-bold text-text-primary mb-6 text-center">Devam etmeden önce oku ve onayla</h1>
+
+    <ul class="text-sm text-text-secondary space-y-3 mb-6 list-disc list-inside text-left">
+      <li>Taciz, hakaret, nefret söylemi veya spam yapmak yasaktır.</li>
+      <li>Diğer node'ların (kullanıcıların) kişisel bilgilerini izinsiz paylaşma.</li>
+      <li>Platformu yalnızca yetenek değişimi ve öğrenme amacıyla kullan.</li>
+      <li>Kurallara uymayan hesaplar root tarafından süreli veya süresiz olarak banlanabilir.</li>
+      <li>Ban, GitHub hesabına bağlıdır; yeni bir profil oluşturmak banı kaldırmaz.</li>
+    </ul>
+
+    <%= button_to "Kabul Ediyorum", accept_terms_path, method: :post, class: "w-full inline-flex items-center justify-center gap-2 bg-text-primary dark:bg-accent hover:opacity-90 text-accent-fg dark:text-surface-0 font-bold py-2.5 px-4 rounded transition" %>
+
+    <p class="text-[11px] text-text-muted mt-4 text-center">Kabul etmeden diğer sayfalara erişemezsin.</p>
+  </div>
+</div>

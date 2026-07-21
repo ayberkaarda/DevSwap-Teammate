@@ -1,0 +1,66 @@
+/*
+ * This is a manifest file that'll be compiled into application.css.
+ *
+ * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
+ * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
+ * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
+ * depending on specificity.
+ *
+ * Consider organizing styles into separate files for maintainability.
+ */
+/* Site genelinde tutarlı görünüm için: tema değişse bile (Light/Dark/Dracula/Monokai/Nord)
+   kaydırma çubukları OS varsayılanına düşmesin, ama pasif bir arayüz öğesi olarak
+   göze batmasın — çok ince, saydam iz, sadece hover'da hafifçe belirginleşen bir eşik. */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--border-subtle) 60%, transparent) transparent;
+    /* Kaydırma çubuğu görünüp kaybolurken layout'un kaymasını önle. */
+    scrollbar-gutter: stable;
+}
+
+*::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--border-subtle) 60%, transparent);
+    border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in srgb, var(--border-subtle) 90%, transparent);
+}
+
+/* Terminal ve Loglar için Özel Kaydırma Çubuğu (opt-in, global kurala göre daha da ince varyant) */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--border-subtle) 50%, transparent);
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in srgb, var(--border-subtle) 85%, transparent);
+}
+
+/* Dashboard widget'lari icin: kaydirma islevi korunur ama kaydirma cubugu
+   goze gorunmez (widget kartlari kucuk oldugundan cubuk gorsel gurultu yaratiyordu). */
+.no-visible-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.no-visible-scrollbar::-webkit-scrollbar {
+    display: none;
+}

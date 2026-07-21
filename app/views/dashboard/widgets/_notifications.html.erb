@@ -1,0 +1,37 @@
+<% notifications = current_user.post_notifications.active.includes(:post, :skill).order(created_at: :desc).limit(10) %>
+<div class="h-full flex flex-col border border-border-subtle bg-surface-1 p-4 font-mono text-xs text-text-muted" data-widget-type="<%= widget.widget_type %>" style="font-size: calc(1em * var(--widget-font-scale, 1));">
+  <div class="flex items-center justify-between gap-2 mb-2 shrink-0">
+    <span class="text-accent">Bildirimler</span>
+    <% if notifications.any? %>
+      <span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-accent text-white text-[10px] font-bold"><%= notifications.size %></span>
+    <% end %>
+  </div>
+
+  <% if notifications.empty? %>
+    <p class="italic mt-2">Yeni bildirim yok.</p>
+  <% else %>
+    <div class="flex-1 overflow-y-auto no-visible-scrollbar divide-y divide-border-subtle -mx-4 px-4">
+      <% notifications.each do |notification| %>
+        <% post = notification.post %>
+        <div class="py-3 first:pt-0">
+          <p class="text-text-secondary leading-relaxed">
+            <span class="text-accent font-bold"><%= post.user.name %></span>
+            bir post yayınladı:
+            <% if notification.skill %>
+              <span class="text-accent">&gt; <%= notification.skill.name %></span> ilgini çekebilir
+            <% else %>
+              ilgini çekebilir
+            <% end %>
+          </p>
+          <p class="text-text-muted mt-1 italic"><%= truncate(post.content, length: 60) %></p>
+          <div class="flex gap-2 mt-2">
+            <%= button_to "İlgileniyorum", claim_notification_path(notification), method: :patch,
+                  class: "flex-1 bg-accent/10 text-accent border border-accent/30 px-2 py-1 rounded text-[10px] hover:bg-accent/20 transition-colors cursor-pointer" %>
+            <%= button_to "Kapat", dismiss_notification_path(notification), method: :patch,
+                  class: "flex-1 bg-surface-2 text-text-muted border border-border-subtle px-2 py-1 rounded text-[10px] hover:text-text-secondary transition-colors cursor-pointer" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

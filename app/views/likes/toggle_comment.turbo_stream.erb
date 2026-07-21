@@ -1,0 +1,4 @@
+<%# Yorum begeni/tepkisi degistikten sonra yalnizca o yorumun etkilesim satirini tazele. %>
+<%= turbo_stream.replace "comment_#{@comment.id}_interactions" do %>
+  <%= render "comments/interactions", comment: @comment %>
+<% end %>

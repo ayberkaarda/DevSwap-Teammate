@@ -27,7 +27,7 @@ gem "bcrypt", "~> 3.1.7"
 # GitHub ile OAuth kimlik doğrulama
 gem "omniauth-github"
 gem "omniauth-rails_csrf_protection"
-gem "octokit", "~> 9.0"
+gem "octokit", "~> 10.0"
 gem "neighbor"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

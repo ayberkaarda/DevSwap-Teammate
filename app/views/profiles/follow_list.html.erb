@@ -3,7 +3,7 @@
   <div class="max-w-2xl mx-auto pt-8">
     <div class="mb-6 flex items-center justify-between border-b border-border-subtle pb-4">
       <div>
-        <h1 class="text-2xl font-bold tracking-tight text-text-primary dark:text-accent-fg font-mono"><%= @list_title %></h1>
+        <h1 class="text-2xl font-bold tracking-tight text-text-primary font-mono"><%= @list_title %></h1>
         <p class="text-text-muted mt-1 text-sm font-mono">
           &gt; <%= link_to @profile_user.name, public_profile_path(@profile_user.id), class: "text-accent hover:underline" %>
         </p>

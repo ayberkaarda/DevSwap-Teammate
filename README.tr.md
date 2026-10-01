@@ -32,6 +32,31 @@ DevSwap, bir yeteneği **öğretmek** isteyen geliştiricileri o yeteneği **ö�
 |---|---|
 | ![Admin kullanıcılar](docs/screenshots/admin-users.png) | ![Telemetri](docs/screenshots/telemetry.png) |
 
+
+### Temalar
+
+Dashboard'un her yerleşik temadaki görünümü (ek olarak işletim sisteminin açık/koyu ayarını izleyen **Sistem** teması).
+
+| Açık | Koyu |
+|---|---|
+| ![Açık](docs/screenshots/themes/light.png) | ![Koyu](docs/screenshots/themes/dark.png) |
+
+| Dracula | Monokai |
+|---|---|
+| ![Dracula](docs/screenshots/themes/dracula.png) | ![Monokai](docs/screenshots/themes/monokai.png) |
+
+| Nord | Solarized |
+|---|---|
+| ![Nord](docs/screenshots/themes/nord.png) | ![Solarized](docs/screenshots/themes/solarized.png) |
+
+| Gruvbox | One Dark |
+|---|---|
+| ![Gruvbox](docs/screenshots/themes/gruvbox.png) | ![One Dark](docs/screenshots/themes/onedark.png) |
+
+| Tokyo Night | Matrix |
+|---|---|
+| ![Tokyo Night](docs/screenshots/themes/tokyonight.png) | ![Matrix](docs/screenshots/themes/matrix.png) |
+
 ---
 
 ## Teknoloji Yığını

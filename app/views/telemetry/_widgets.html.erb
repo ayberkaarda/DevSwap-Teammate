@@ -202,9 +202,9 @@
       # Renkler yumusatildi (pure #00ff41 -> #3fb950): htop/terminal hissi korunur
       # ama goze batmaz. Panel arka plani/kenarligi/metni artik --terminal-* temasina
       # baglidir; boylece Dracula/Monokai/Nord'da o temanin koyu tonuna uyum saglar.
-      ok_green = "#3fb950"
-      warn_amber = "#d29922"
-      crit_red = "#f85149"
+      ok_green = "var(--status-ok)"
+      warn_amber = "var(--status-warn)"
+      crit_red = "var(--status-err)"
       failed_color = failed_count.zero? ? ok_green : (failed_count < 5 ? warn_amber : crit_red)
     %>
     <div class="rounded-lg p-4 font-mono text-xs mt-6"

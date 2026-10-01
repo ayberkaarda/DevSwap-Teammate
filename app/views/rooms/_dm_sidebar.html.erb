@@ -41,7 +41,7 @@
                 <%= other.name.to_s.first %>
               </span>
             <% end %>
-            <span class="flex-1 min-w-0 truncate text-xs font-mono normal-case <%= is_active ? "text-emerald-400" : "text-terminal-text" %>"><%= other.name %></span>
+            <span class="flex-1 min-w-0 truncate text-xs font-mono normal-case <%= is_active ? "text-accent" : "text-terminal-text" %>"><%= other.name %></span>
             <% if unread > 0 %>
               <span class="shrink-0 min-w-[1.25rem] h-5 px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">+<%= unread %></span>
             <% end %>

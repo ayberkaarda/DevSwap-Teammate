@@ -22,7 +22,7 @@
       hiçbir geri bildirim görmüyordu ("hiçbir şey olmuyor"). Flash'ı frame İÇİNDE de
       göstererek geri bildirimi garanti ediyoruz. %>
   <% if flash[:notice].present? || flash[:alert].present? %>
-    <div class="px-4 py-2 border-b border-terminal-border text-[11px] font-mono <%= flash[:alert].present? ? "text-red-400" : "text-accent" %>">
+    <div class="px-4 py-2 border-b border-terminal-border text-[11px] font-mono <%= flash[:alert].present? ? "text-status-err" : "text-accent" %>">
       <%= flash[:alert].presence || flash[:notice] %>
     </div>
   <% end %>
@@ -46,7 +46,7 @@
         <span class="text-accent">Değerlendirmen kaydedildi.</span>
       <% end %>
     <% else %>
-      <%= button_to "İlişkiyi Sonlandır", request_end_room_path(chat_room.slug), method: :post, class: "text-[10px] text-terminal-text-muted hover:text-red-400 border border-terminal-border px-2 py-1 rounded transition-colors" %>
+      <%= button_to "İlişkiyi Sonlandır", request_end_room_path(chat_room.slug), method: :post, class: "text-[10px] text-terminal-text-muted hover:text-red-600 dark:hover:text-red-400 border border-terminal-border px-2 py-1 rounded transition-colors" %>
     <% end %>
   </div>
 <% end %>

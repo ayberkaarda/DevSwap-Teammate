@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+/* `dark:` utilities must follow the in-app theme (the .dark class set by
+   theme_controller on <html> for every dark theme), not the OS preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   /* Single source of truth for the top nav bar height. Every place that
      needs to clear the nav (layout wrapper, sticky offsets, etc.) must
@@ -10,14 +14,6 @@
 
   /* ---- Adım 2: Token layer (light mode / default values) ---- */
   --surface-0: #fafafa;      /* page background (zinc-50) */
-
-  /* ---- Adım 2: Token layer (light mode / default values) ---- */
-
-  --surface-0: #f3f4f6;      /* page background (gray-100) */
-
-
-  --surface-0: #fafafa;      /* page background (zinc-50) */
-
   --surface-1: #ffffff;      /* card/panel background (white) */
   --surface-2: #f9fafb;      /* nested/input background (gray-50) */
   --border-subtle: #e5e7eb;  /* gray-200 */
@@ -26,8 +22,6 @@
   --text-secondary: #374151; /* gray-700 */
   --text-muted: #6b7280;     /* gray-500 */
 
-
-
   --accent: #047857;         /* emerald-700 (AA text contrast) */
   --accent-fg: #ffffff;
 
@@ -35,21 +29,8 @@
   --terminal-text: #1f2328;
   --prompt-color: #065f46;
 
-
-  --accent: #059669;         /* emerald-600 */
-
-  --accent: #047857;         /* emerald-700 (AA text contrast) */
-
-  --accent-fg: #ffffff;
-
-  --terminal-bg: #090B10;    /* always-dark terminal surface, same both themes */
-  --terminal-text: #d1d5db;  /* gray-300, terminal body text */
-  --prompt-color: #10b981;   /* emerald-500, ❯ / prompt accents */
-
-
-
   --status-ok: #059669;      /* emerald-600 */
-  --status-warn: #f59e0b;    /* amber-500 */
+  --status-warn: #b45309;    /* amber-700 (AA text contrast on light surfaces) */
   --status-err: #e11d48;     /* rose-600 */
 
   --chart-1: #2a78d6;
@@ -57,25 +38,14 @@
   --chart-3: #6da7ec;
   --chart-4: #9ec5f4;
 
-  /* Supplementary (non-mandatory) tokens: extra elevation tiers within the
-     always-dark "terminal" surfaces used across dashboard/profiles, and a
-     shared border color for those terminal panels. Same value both themes
-     (Rule A), kept separate from --terminal-bg so the existing 3-tier
-     elevation look (outer / panel / header) is preserved exactly. */
-
-
-
+  /* Extra elevation tiers for the "terminal" surfaces used across
+     dashboard/profiles, plus their shared border color. Light values here;
+     each dark theme overrides them below. */
   --terminal-bg-2: #e2e2de;
   --terminal-bg-3: #d8d8d3;
   --terminal-border: #c9c9c3;
   --terminal-text-muted: #52524d;
   --terminal-accent-2: #4338ca;
-
-
-  --terminal-bg-2: #050608;
-  --terminal-bg-3: #121620;
-  --terminal-border: #1f2937; /* gray-800 */
-
 }
 
 /* Tema değişimi sırasında (özellikle reflow anında) <body>'nin arka planı
@@ -98,7 +68,7 @@ html {
   --text-muted: #9ca3af;     /* gray-400 (was gray-500, failed AA on new surface-1) */
 
   --accent: #34d399;         /* emerald-400 */
-  --accent-fg: #ffffff;
+  --accent-fg: #052e22;
 
   --terminal-bg: #090B10;
   --terminal-text: #d1d5db;
@@ -260,7 +230,7 @@ html {
 
   --text-primary: #ebdbb2;   /* fg1 */
   --text-secondary: #d5c4a1; /* fg2 */
-  --text-muted: #928374;     /* gray */
+  --text-muted: #a89984;     /* fg4 */
 
   --accent: #fe8019;         /* gruvbox orange (bright) */
   --accent-fg: #282828;
@@ -293,7 +263,7 @@ html {
 
   --text-primary: #abb2bf;   /* foreground */
   --text-secondary: #dcdfe4; /* white */
-  --text-muted: #5c6370;     /* comment grey */
+  --text-muted: #7f8798;     /* comment grey, lifted for AA contrast */
 
   --accent: #61afef;         /* one dark blue */
   --accent-fg: #282c34;
@@ -314,7 +284,7 @@ html {
   --terminal-bg-2: #2c313a;
   --terminal-bg-3: #21252b;  /* darker step */
   --terminal-border: #4b5263; /* gutter grey */
-  --terminal-text-muted: #5c6370; /* comment grey */
+  --terminal-text-muted: #7f8798; /* comment grey, lifted for AA contrast */
   --terminal-accent-2: #c678dd;   /* purple */
 }
 
@@ -326,7 +296,7 @@ html {
 
   --text-primary: #c0caf5;   /* fg */
   --text-secondary: #a9b1d6; /* dimmer blue-white */
-  --text-muted: #565f89;     /* comment */
+  --text-muted: #737aa2;     /* comment, lifted for AA contrast */
 
   --accent: #7aa2f7;         /* tokyo night blue */
   --accent-fg: #16161e;
@@ -347,7 +317,7 @@ html {
   --terminal-bg-2: #1a1b26;  /* bg */
   --terminal-bg-3: #292e42;  /* bg highlight */
   --terminal-border: #414868; /* terminal black */
-  --terminal-text-muted: #565f89; /* comment */
+  --terminal-text-muted: #737aa2; /* comment, lifted for AA contrast */
   --terminal-accent-2: #ff007c;   /* magenta */
 }
 
@@ -358,8 +328,8 @@ html {
   --border-subtle: #003b00;  /* deep green */
 
   --text-primary: #00ff41;   /* matrix green */
-  --text-secondary: #008f11;  /* mid-green dim */
-  --text-muted: #003b00;     /* deep green */
+  --text-secondary: #00c733;  /* mid-green */
+  --text-muted: #009a1e;     /* dim green (AA on near-black) */
 
   --accent: #00ff41;         /* matrix green */
   --accent-fg: #0d0208;

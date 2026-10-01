@@ -32,6 +32,31 @@ DevSwap matches developers who want to **teach** a skill with developers who wan
 |---|---|
 | ![Admin users](docs/screenshots/admin-users.png) | ![Telemetry](docs/screenshots/telemetry.png) |
 
+
+### Themes
+
+Dashboard rendered in each built-in theme (plus **System**, which follows the OS light/dark setting).
+
+| Light | Dark |
+|---|---|
+| ![Light](docs/screenshots/themes/light.png) | ![Dark](docs/screenshots/themes/dark.png) |
+
+| Dracula | Monokai |
+|---|---|
+| ![Dracula](docs/screenshots/themes/dracula.png) | ![Monokai](docs/screenshots/themes/monokai.png) |
+
+| Nord | Solarized |
+|---|---|
+| ![Nord](docs/screenshots/themes/nord.png) | ![Solarized](docs/screenshots/themes/solarized.png) |
+
+| Gruvbox | One Dark |
+|---|---|
+| ![Gruvbox](docs/screenshots/themes/gruvbox.png) | ![One Dark](docs/screenshots/themes/onedark.png) |
+
+| Tokyo Night | Matrix |
+|---|---|
+| ![Tokyo Night](docs/screenshots/themes/tokyonight.png) | ![Matrix](docs/screenshots/themes/matrix.png) |
+
 ---
 
 ## Tech Stack

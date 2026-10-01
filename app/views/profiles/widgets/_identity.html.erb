@@ -16,7 +16,7 @@
   <div class="mb-3">
     <% if profile_user.is_online? %>
       <% if ChatRoom.where("(user_a_id = :id OR user_b_id = :id) AND private = true AND ended_by_a = false AND ended_by_b = false", id: profile_user.id).exists? %>
-        <span class="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full border" style="color: #f59e0b; border-color: #f59e0b; background-color: rgba(245,158,11,0.12);">Eşleşmede</span>
+        <span class="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full border" style="color: var(--status-warn); border-color: var(--status-warn); background-color: color-mix(in srgb, var(--status-warn) 12%, transparent);">Eşleşmede</span>
       <% else %>
         <span class="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full border" style="color: var(--status-ok); border-color: var(--status-ok); background-color: color-mix(in srgb, var(--status-ok) 12%, transparent);">Çevrimiçi</span>
       <% end %>

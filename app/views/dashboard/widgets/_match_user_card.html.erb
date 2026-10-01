@@ -16,7 +16,7 @@
   <div class="flex justify-between items-start mb-2">
     <div>
       <div class="flex items-center gap-2">
-        <h3 class="text-lg font-bold text-text-primary dark:text-accent-fg"><%= link_to user.name, public_profile_path(user.id), class: "hover:text-accent hover:underline transition-colors", data: { turbo_frame: "_top" } %></h3>
+        <h3 class="text-lg font-bold text-text-primary"><%= link_to user.name, public_profile_path(user.id), class: "hover:text-accent hover:underline transition-colors", data: { turbo_frame: "_top" } %></h3>
         <% if user.respond_to?(:reciprocal) && user.reciprocal %>
           <span class="inline-flex items-center gap-1 text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border" style="color: var(--status-ok); border-color: var(--status-ok); background-color: color-mix(in srgb, var(--status-ok) 12%, transparent);">
             <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>

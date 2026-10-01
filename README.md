@@ -1,8 +1,36 @@
 # DevSwap-Teammate
 
+🇬🇧 English | [🇹🇷 Türkçe](README.tr.md)
+
 **Peer-to-peer developer skill exchange, wrapped in a terminal/hacker aesthetic.**
 
 DevSwap matches developers who want to **teach** a skill with developers who want to **learn** it, using GitHub activity and a category-aware pgvector semantic matching engine. Once matched, users get a real-time terminal-style chat with DMs, a public profile, a social feed for sharing progress, and a fully customizable widget-based dashboard — all rendered in a nostalgic green-on-black terminal UI (with ten other themes to pick from).
+
+---
+
+## Screenshots
+
+> Captured with Playwright against a local instance seeded with demo data (dark theme).
+
+| Dashboard | Social feed |
+|---|---|
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Social feed](docs/screenshots/posts-feed.png) |
+
+| Public profile | Public chat room |
+|---|---|
+| ![Public profile](docs/screenshots/profile.png) | ![Chat room](docs/screenshots/chat-room.png) |
+
+| Match DM | Notifications |
+|---|---|
+| ![Match DM](docs/screenshots/dm-match.png) | ![Notifications](docs/screenshots/notifications.png) |
+
+| Settings | Onboarding guide |
+|---|---|
+| ![Settings](docs/screenshots/settings.png) | ![Guide](docs/screenshots/guide.png) |
+
+| Admin: users | Telemetry |
+|---|---|
+| ![Admin users](docs/screenshots/admin-users.png) | ![Telemetry](docs/screenshots/telemetry.png) |
 
 ---
 
